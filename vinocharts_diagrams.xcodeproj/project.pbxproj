@@ -25,6 +25,7 @@
 		FB40EB6E16FDE8FA00B7E9E8 /* Diagram.m in Sources */ = {isa = PBXBuildFile; fileRef = FB40EB6D16FDE8FA00B7E9E8 /* Diagram.m */; };
 		FBB4DF3D16FEC486007211D8 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB4DF3C16FEC486007211D8 /* Constants.m */; };
 		FBB4DF4D16FEE19E007211D8 /* ViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB4DF4B16FEE09A007211D8 /* ViewHelper.m */; };
+		FBB4DF5016FF2A78007211D8 /* EditDiagramController.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB4DF4F16FF2A78007211D8 /* EditDiagramController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -96,6 +97,8 @@
 		FBB4DF3C16FEC486007211D8 /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		FBB4DF4B16FEE09A007211D8 /* ViewHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewHelper.m; sourceTree = "<group>"; };
 		FBB4DF4C16FEE09A007211D8 /* ViewHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewHelper.h; sourceTree = "<group>"; };
+		FBB4DF4E16FF2A78007211D8 /* EditDiagramController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditDiagramController.h; sourceTree = "<group>"; };
+		FBB4DF4F16FF2A78007211D8 /* EditDiagramController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditDiagramController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +155,8 @@
 				FBB4DF3B16FEC486007211D8 /* Constants.h */,
 				FBB4DF3C16FEC486007211D8 /* Constants.m */,
 				FB40EB1F16FDE06100B7E9E8 /* AppDelegate.h */,
+				FBB4DF4E16FF2A78007211D8 /* EditDiagramController.h */,
+				FBB4DF4F16FF2A78007211D8 /* EditDiagramController.m */,
 				FB40EB2016FDE06100B7E9E8 /* AppDelegate.m */,
 				FB40EB6C16FDE8FA00B7E9E8 /* Diagram.h */,
 				FB40EB6D16FDE8FA00B7E9E8 /* Diagram.m */,
@@ -318,6 +323,7 @@
 				FB40EB6B16FDE8EB00B7E9E8 /* Note.m in Sources */,
 				FB40EB6E16FDE8FA00B7E9E8 /* Diagram.m in Sources */,
 				FBB4DF3D16FEC486007211D8 /* Constants.m in Sources */,
+				FBB4DF5016FF2A78007211D8 /* EditDiagramController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

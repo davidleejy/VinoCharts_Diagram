@@ -36,7 +36,7 @@ static NSString *borderType = @"borderType";
     // Initialise notesArray
     _notesArray = [[NSMutableArray alloc]init];
     
-    _rect1 = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 1000, 400)];
+    _rect1 = [[UIView alloc]initWithFrame:CGRectMake(200, 300, 1000, 500)];
     [_rect1 setBackgroundColor:[UIColor purpleColor]];
     [_scrollView addSubview:_rect1];
     
@@ -49,8 +49,8 @@ static NSString *borderType = @"borderType";
 	// Most 2D physics games end up putting all the gameplay in a box. This method just makes that easy.
 	// We'll tag these segment shapes with the borderType object. You'll see what this is for next.
 	[_space addBounds:_rect1.bounds
-            thickness:1000.0f elasticity:1.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
-    [_space setGravity:cpv(0, 700)];
+            thickness:1000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
+    [_space setGravity:cpv(0, 0)];
     
     NSLog(@"%.5f,%.5f,%.5f,%.5f",_rect1.bounds.origin.x,
           _rect1.bounds.origin.y,
@@ -69,6 +69,14 @@ static NSString *borderType = @"borderType";
                       preSolve:nil
                      postSolve:nil
                       separate:nil
+     ];
+    
+    [_space addCollisionHandler:self
+                          typeA:[Note class] typeB:[Note class]
+                          begin:@selector(beginCollision_Note_Note:space:)
+                       preSolve:@selector(preCollision_Note_Note:space:)
+                      postSolve:@selector(postCollision_Note_Note:space:)
+                       separate:@selector(separateCollision_Note_Note:space:)
      ];
 	
 	
@@ -117,6 +125,10 @@ static NSString *borderType = @"borderType";
     [_rect1 addSubview:newN.textView];
     [_space add:newN];
     [_notesArray addObject:(Note*)newN];
+    
+    //          Attach gesture recognizers          //
+    UIPanGestureRecognizer *panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(notePanResponse:)];
+    [newN.textView addGestureRecognizer:panRecog];
 }
 
 - (IBAction)forceEdit:(id)sender {
@@ -126,14 +138,58 @@ static NSString *borderType = @"borderType";
     _noteBeingEdited = _n1;
 }
 
+- (IBAction)gravityOff:(id)sender {
+    _space.gravity = cpv(0,0);
+}
+
+- (IBAction)gravityOn:(id)sender {
+    _space.gravity = cpv(0,400);
+}
+
 - (bool)beginCollision:(cpArbiter*)arbiter space:(ChipmunkSpace*)space {
-	CHIPMUNK_ARBITER_GET_SHAPES(arbiter, buttonShape, border);
+	CHIPMUNK_ARBITER_GET_SHAPES(arbiter, noteShape, border);
 	
-	NSLog(@"First object in the collision is %@ second object is %@.", buttonShape.data, border.data);
-	
-    Note *fb = buttonShape.data;
+//	NSLog(@"First object in the collision is %@ second object is %@.", noteShape.data, border.data);
 	
 	return TRUE; // We return true, so the collision is handled normally.
+}
+
+-(BOOL)beginCollision_Note_Note:(cpArbiter*)arbiter space:(ChipmunkSpace*)space{
+    CHIPMUNK_ARBITER_GET_SHAPES(arbiter, note1Shape, note2Shape);
+    
+    Note *note1 = note1Shape.data;
+    Note *note2 = note2Shape.data;
+    
+    if (note1.beingPanned) {
+        NSLog(@"NNcollision note1 being panned");
+        return FALSE;
+    }
+    else if (note2.beingPanned) {
+        NSLog(@"NNcollision note2 being panned");
+        return FALSE;
+    }
+    else
+        NSLog(@"NNcollision note1 note2 are go");
+        return TRUE;
+}
+
+//BOOKMARK
+
+-(BOOL)preCollision_Note_Note:(cpArbiter*)arbiter space:(ChipmunkSpace*)space{
+    NSLog(@"pre");
+    return TRUE;
+}
+
+-(void)postCollision_Note_Note:(cpArbiter*)arbiter space:(ChipmunkSpace*)space{
+    NSLog(@"post");
+}
+
+-(void)separateCollision_Note_Note:(cpArbiter*)arbiter space:(ChipmunkSpace*)space{
+    NSLog(@"separ");
+}
+
+-(BOOL)noCollision:(cpArbiter*)arbiter space:(ChipmunkSpace*)space {
+    return NO;
 }
 
 
@@ -151,7 +207,7 @@ static NSString *borderType = @"borderType";
 	// Step (simulate) the space based on the time since the last update.
 	cpFloat dt = _displayLink.duration*_displayLink.frameInterval;
 	[_space step:dt];
-	
+    
 	// Update the button.
 	// This sets the position and rotation of the button to match the rigid body.
 	[_n1 updatePos];
@@ -185,6 +241,30 @@ static NSString *borderType = @"borderType";
         _editingANote = NO;
         [_noteBeingEdited.textView setEditable:NO];
         _noteBeingEdited = nil;
+    }
+}
+
+
+-(void)notePanResponse:(UIPanGestureRecognizer*)recognizer {
+    
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        _scrollView.scrollEnabled = NO; //Disable scrolling
+        ((Note*)((UITextView*)recognizer.view).delegate).beingPanned = YES;
+        NSLog(@"begin!");
+    }
+    
+    cpVect origBodyPos = ((Note*)((UITextView*)recognizer.view).delegate).body.pos;
+    
+    CGPoint translation = [recognizer translationInView:recognizer.view.superview];
+    
+    ((Note*)((UITextView*)recognizer.view).delegate).body.pos = cpv(origBodyPos.x+translation.x, origBodyPos.y+translation.y);
+    
+    [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
+    
+	if(recognizer.state == UIGestureRecognizerStateEnded) {
+        _scrollView.scrollEnabled = YES;
+        ((Note*)((UITextView*)recognizer.view).delegate).beingPanned = NO;
+        NSLog(@"End!");
     }
 }
 

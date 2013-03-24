@@ -13,7 +13,11 @@
 @implementation Note
 
 -(void)updatePos {
+    //Updating
     _textView.transform = _body.affineTransform;
+    //Dampening
+	_body.vel = cpvmult(_body.vel, 0.9);
+	_body.angle = 0;
 }
 
 -(id)initWithText:(NSString*)t{
@@ -23,7 +27,9 @@
         _textView = [[UITextView alloc]init];
         [_textView setText:t];
         [_textView setDelegate:self];
-
+        
+        //Set states
+        _beingPanned = NO;
         
         //Resize frame's dimensions to fit NOTE_CONTENT_CHAR_LIM number of chars.
 //        _textView.frame = CGRectMake(0, 0, NOTE_DEFAULT_WIDTH ,NOTE_DEFAULT_HEIGHT);
@@ -47,8 +53,7 @@
 		// You attach collision shapes to rigid bodies to define their shape and allow them to collide with other objects,
 		// and you can attach joints between rigid bodies to connect them together.
 		_body = [[ChipmunkBody alloc] initWithMass:mass andMoment:moment];
-//        _body.pos = cpv(NOTE_DEFAULT_WIDTH/2.0, NOTE_DEFAULT_HEIGHT/2.0);
-		_body.pos = cpv(200, 200);
+		_body.pos = cpv(0, 0);
 
         
 		// Chipmunk supports a number of collision shape types. See the documentation for more information.
@@ -57,9 +62,9 @@
 		ChipmunkShape *shape = [ChipmunkPolyShape boxWithBody:_body width:NOTE_DEFAULT_WIDTH height:NOTE_DEFAULT_HEIGHT];
 		
 		// The elasticity of a shape controls how bouncy it is.
-		shape.elasticity = 0.45f;
+		shape.elasticity = 0.0f;
 		// The friction propertry should be self explanatory. Friction values go from 0 and up- they can be higher than 1f.
-		shape.friction = 0.77f;
+		shape.friction = 1.0f;
 		
 		// Set the collision type to a unique value (the class object works well)
 		// This type is used as a key later when setting up callbacks.
@@ -90,7 +95,8 @@
 }
 
 
-// UITextViewDelegate method
+/******* UITextViewDelegate methods below *******/
+
 -(BOOL)textView:(UITextView*)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     NSUInteger newLength = [textView.text length]+[text length] - range.length;
     if (newLength > NOTE_CONTENT_CHAR_LIM) {
@@ -106,18 +112,6 @@
     }
     else
         return YES;
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    
-    NSLog(@"#####");
-    
-    UITouch *touch = [touches anyObject];
-    if ([_textView isFirstResponder] && [touch view] != _textView) {
-        
-        [_textView resignFirstResponder];
-    }
-    // My comment : If you have several text controls copy/paste/modify a block above and you are DONE!
 }
 
 @end

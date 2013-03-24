@@ -15,6 +15,10 @@
 @property (readwrite) ChipmunkBody *body;
 @property (readwrite) NSArray *chipmunkObjects;
 
+/*State*/
+@property (readwrite) BOOL beingPanned;
+
+
 -(void)updatePos;
 //MODIFIES: textView
 //EFFECTS: updates textView to follow body. Called at each delta time when using chipmunk physics engine.

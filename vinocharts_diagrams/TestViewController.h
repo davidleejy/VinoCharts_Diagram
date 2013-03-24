@@ -26,9 +26,13 @@
 
 - (IBAction)newNoteButton:(id)sender;
 - (IBAction)forceEdit:(id)sender;
+- (IBAction)gravityOff:(id)sender;
+- (IBAction)gravityOn:(id)sender;
 
 - (void)singleTapResponse:(UITapGestureRecognizer *)recognizer;
 // EFFECTS: Executes what a single tap is supposed to do.
 
+-(void)notePanResponse:(UIPanGestureRecognizer*)recognizer;
+// EFFECTS: Executes what a note is supposed to do during panning.
 
 @end
