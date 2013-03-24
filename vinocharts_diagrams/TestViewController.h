@@ -7,8 +7,28 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
+#import <quartzcore/CADisplayLink.h>
+#import "Note.h"
 
 @interface TestViewController : UIViewController
+
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (readwrite) CADisplayLink *displayLink;
+@property (readwrite) ChipmunkSpace *space;
+@property (readwrite) Note *n1;
+@property (readwrite) NSMutableArray *notesArray;
+@property (readwrite) UIView *rect1;
+
+// States
+@property (readwrite) BOOL editingANote;
+@property (readwrite) Note *noteBeingEdited;
+
+- (IBAction)newNoteButton:(id)sender;
+- (IBAction)forceEdit:(id)sender;
+
+- (void)singleTapResponse:(UITapGestureRecognizer *)recognizer;
+// EFFECTS: Executes what a single tap is supposed to do.
+
 
 @end

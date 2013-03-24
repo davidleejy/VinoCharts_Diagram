@@ -17,13 +17,14 @@
 		FB40EB2516FDE06100B7E9E8 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FB40EB2416FDE06100B7E9E8 /* Default@2x.png */; };
 		FB40EB2716FDE06100B7E9E8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FB40EB2616FDE06100B7E9E8 /* Default-568h@2x.png */; };
 		FB40EB2A16FDE06100B7E9E8 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FB40EB2816FDE06100B7E9E8 /* MainStoryboard.storyboard */; };
-		FB40EB2D16FDE06100B7E9E8 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FB40EB2C16FDE06100B7E9E8 /* ViewController.m */; };
 		FB40EB3516FDE0AC00B7E9E8 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB40EB3316FDE09800B7E9E8 /* ImageIO.framework */; };
 		FB40EB3716FDE0B300B7E9E8 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB40EB3616FDE0B300B7E9E8 /* QuartzCore.framework */; };
 		FB40EB6516FDE15D00B7E9E8 /* libChipmunkPro-iPhone.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FB40EB6316FDE15D00B7E9E8 /* libChipmunkPro-iPhone.a */; };
 		FB40EB6816FDE1ED00B7E9E8 /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FB40EB6716FDE1ED00B7E9E8 /* TestViewController.m */; };
 		FB40EB6B16FDE8EB00B7E9E8 /* Note.m in Sources */ = {isa = PBXBuildFile; fileRef = FB40EB6A16FDE8EB00B7E9E8 /* Note.m */; };
 		FB40EB6E16FDE8FA00B7E9E8 /* Diagram.m in Sources */ = {isa = PBXBuildFile; fileRef = FB40EB6D16FDE8FA00B7E9E8 /* Diagram.m */; };
+		FBB4DF3D16FEC486007211D8 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB4DF3C16FEC486007211D8 /* Constants.m */; };
+		FBB4DF4D16FEE19E007211D8 /* ViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB4DF4B16FEE09A007211D8 /* ViewHelper.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,8 +42,6 @@
 		FB40EB2416FDE06100B7E9E8 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		FB40EB2616FDE06100B7E9E8 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		FB40EB2916FDE06100B7E9E8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
-		FB40EB2B16FDE06100B7E9E8 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		FB40EB2C16FDE06100B7E9E8 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		FB40EB3316FDE09800B7E9E8 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		FB40EB3616FDE0B300B7E9E8 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		FB40EB3A16FDE15D00B7E9E8 /* chipmunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chipmunk.h; sourceTree = "<group>"; };
@@ -93,6 +92,10 @@
 		FB40EB6A16FDE8EB00B7E9E8 /* Note.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Note.m; sourceTree = "<group>"; };
 		FB40EB6C16FDE8FA00B7E9E8 /* Diagram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Diagram.h; sourceTree = "<group>"; };
 		FB40EB6D16FDE8FA00B7E9E8 /* Diagram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Diagram.m; sourceTree = "<group>"; };
+		FBB4DF3B16FEC486007211D8 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		FBB4DF3C16FEC486007211D8 /* Constants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
+		FBB4DF4B16FEE09A007211D8 /* ViewHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewHelper.m; sourceTree = "<group>"; };
+		FBB4DF4C16FEE09A007211D8 /* ViewHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewHelper.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +149,8 @@
 			isa = PBXGroup;
 			children = (
 				FB40EB2816FDE06100B7E9E8 /* MainStoryboard.storyboard */,
+				FBB4DF3B16FEC486007211D8 /* Constants.h */,
+				FBB4DF3C16FEC486007211D8 /* Constants.m */,
 				FB40EB1F16FDE06100B7E9E8 /* AppDelegate.h */,
 				FB40EB2016FDE06100B7E9E8 /* AppDelegate.m */,
 				FB40EB6C16FDE8FA00B7E9E8 /* Diagram.h */,
@@ -154,8 +159,8 @@
 				FB40EB6A16FDE8EB00B7E9E8 /* Note.m */,
 				FB40EB6616FDE1ED00B7E9E8 /* TestViewController.h */,
 				FB40EB6716FDE1ED00B7E9E8 /* TestViewController.m */,
-				FB40EB2B16FDE06100B7E9E8 /* ViewController.h */,
-				FB40EB2C16FDE06100B7E9E8 /* ViewController.m */,
+				FBB4DF4B16FEE09A007211D8 /* ViewHelper.m */,
+				FBB4DF4C16FEE09A007211D8 /* ViewHelper.h */,
 				FB40EB1716FDE06100B7E9E8 /* Supporting Files */,
 			);
 			path = vinocharts_diagrams;
@@ -306,12 +311,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBB4DF4D16FEE19E007211D8 /* ViewHelper.m in Sources */,
 				FB40EB1D16FDE06100B7E9E8 /* main.m in Sources */,
 				FB40EB2116FDE06100B7E9E8 /* AppDelegate.m in Sources */,
-				FB40EB2D16FDE06100B7E9E8 /* ViewController.m in Sources */,
 				FB40EB6816FDE1ED00B7E9E8 /* TestViewController.m in Sources */,
 				FB40EB6B16FDE8EB00B7E9E8 /* Note.m in Sources */,
 				FB40EB6E16FDE8FA00B7E9E8 /* Diagram.m in Sources */,
+				FBB4DF3D16FEC486007211D8 /* Constants.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,6 +446,7 @@
 				FB40EB3216FDE06100B7E9E8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

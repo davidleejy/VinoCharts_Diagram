@@ -7,6 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#import <QuartzCore/QuartzCore.h>
+#import <quartzcore/CADisplayLink.h>
 
 @interface Diagram : NSObject
 
