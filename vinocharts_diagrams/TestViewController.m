@@ -71,13 +71,13 @@ static NSString *borderType = @"borderType";
                       separate:nil
      ];
     
-    [_space addCollisionHandler:self
-                          typeA:[Note class] typeB:[Note class]
-                          begin:@selector(beginCollision_Note_Note:space:)
-                       preSolve:@selector(preCollision_Note_Note:space:)
-                      postSolve:@selector(postCollision_Note_Note:space:)
-                       separate:@selector(separateCollision_Note_Note:space:)
-     ];
+//    [_space addCollisionHandler:self
+//                          typeA:[Note class] typeB:[Note class]
+//                          begin:@selector(beginCollision_Note_Note:space:)
+//                       preSolve:@selector(preCollision_Note_Note:space:)
+//                      postSolve:@selector(postCollision_Note_Note:space:)
+//                       separate:@selector(separateCollision_Note_Note:space:)
+//     ];
 	
 	
 	// You have to actually put things in a Chipmunk space for it to do anything interesting.
@@ -143,7 +143,7 @@ static NSString *borderType = @"borderType";
 }
 
 - (IBAction)gravityOn:(id)sender {
-    _space.gravity = cpv(0,400);
+    _space.gravity = cpv(0,9000);
 }
 
 - (bool)beginCollision:(cpArbiter*)arbiter space:(ChipmunkSpace*)space {
@@ -198,7 +198,7 @@ static NSString *borderType = @"borderType";
 	// Set up the display link to control the timing of the animation.
 	_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update)];
 	_displayLink.frameInterval = 1;
-	[_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+	[_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 }
 
 // This method is called each frame to update the scene.
@@ -251,13 +251,29 @@ static NSString *borderType = @"borderType";
         _scrollView.scrollEnabled = NO; //Disable scrolling
         ((Note*)((UITextView*)recognizer.view).delegate).beingPanned = YES;
         NSLog(@"begin!");
+        
+        //Disable display link
+//        [_displayLink setPaused:YES];
+//        [_displayLink invalidate];
+//        _displayLink = nil;
+        
+        
+        NSLog(@"start view frame orif %.5f %.5f",recognizer.view.frame.origin.x,recognizer.view.frame.origin.y);
+        NSLog(@"start body TL %.5f %.5f",((Note*)((UITextView*)recognizer.view).delegate).body.pos.x - ((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.width/2.0,((Note*)((UITextView*)recognizer.view).delegate).body.pos.y - ((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.height/2.0);
+        
+        [_space remove:((Note*)((UITextView*)recognizer.view).delegate)];
+        
     }
     
     cpVect origBodyPos = ((Note*)((UITextView*)recognizer.view).delegate).body.pos;
     
     CGPoint translation = [recognizer translationInView:recognizer.view.superview];
     
+    // Move only the body
     ((Note*)((UITextView*)recognizer.view).delegate).body.pos = cpv(origBodyPos.x+translation.x, origBodyPos.y+translation.y);
+    
+    // Move only the view
+//    recognizer.view.center = CGPointMake(recognizer.view.center.x + translation.x, recognizer.view.center.y + translation.y);
     
     [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
     
@@ -265,6 +281,40 @@ static NSString *borderType = @"borderType";
         _scrollView.scrollEnabled = YES;
         ((Note*)((UITextView*)recognizer.view).delegate).beingPanned = NO;
         NSLog(@"End!");
+        
+        NSLog(@"view cent %.5f %.5f body pos %.5f %.5f",recognizer.view.center.x,recognizer.view.center.y,((Note*)((UITextView*)recognizer.view).delegate).body.pos.x,((Note*)((UITextView*)recognizer.view).delegate).body.pos.y);
+        NSLog(@"view frame orif %.5f %.5f",recognizer.view.frame.origin.x,recognizer.view.frame.origin.y);
+        NSLog(@"body TL %.5f %.5f",((Note*)((UITextView*)recognizer.view).delegate).body.pos.x - ((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.width/2.0,((Note*)((UITextView*)recognizer.view).delegate).body.pos.y - ((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.height/2.0);
+        
+        
+                
+//        //Connect body to view
+//        
+        cpVect currViewFrameOrigin = cpv(recognizer.view.frame.origin.x,recognizer.view.frame.origin.y);
+//
+        cpVect currViewCenter = cpvadd(currViewFrameOrigin, cpv(((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.width/2.0,((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.height/2.0));
+//
+//        ((Note*)((UITextView*)recognizer.view).delegate).body.pos = currViewCenter;
+//        ((Note*)((UITextView*)recognizer.view).delegate).body.vel = cpv(0,0);
+//        ((Note*)((UITextView*)recognizer.view).delegate).body.angVel = 0;
+//        
+//        NSLog(@"aft con view frame orif %.5f %.5f",recognizer.view.frame.origin.x,recognizer.view.frame.origin.y);
+//        NSLog(@"aft con body TL %.5f %.5f",((Note*)((UITextView*)recognizer.view).delegate).body.pos.x - ((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.width/2.0,((Note*)((UITextView*)recognizer.view).delegate).body.pos.y - ((Note*)((UITextView*)recognizer.view).delegate).textView.frame.size.height/2.0);
+        
+        //body pos
+        [ViewHelper embedMark:CGPointMake(((Note*)((UITextView*)recognizer.view).delegate).body.pos.x, ((Note*)((UITextView*)recognizer.view).delegate).body.pos.y) WithColor:[UIColor redColor] DurationSecs:2.0f In:_rect1];
+        //view center
+        [ViewHelper embedMark:CGPointMake(currViewCenter.x, currViewCenter.y) WithColor:[UIColor blueColor] DurationSecs:1.0f In:_rect1];
+        
+        [_space add:((Note*)((UITextView*)recognizer.view).delegate)];
+        
+        //Restart displayLink
+//        _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update)];
+//        _displayLink.frameInterval = 1;
+//        [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+//        [_displayLink setPaused:NO];
+
+        
     }
 }
 

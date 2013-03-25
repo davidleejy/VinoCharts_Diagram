@@ -15,9 +15,41 @@
 -(void)updatePos {
     //Updating
     _textView.transform = _body.affineTransform;
-    //Dampening
-	_body.vel = cpvmult(_body.vel, 0.9);
-	_body.angle = 0;
+    
+    // Correcting velocity
+    if (cpvlength(_body.vel)>0 && cpvlength(_body.vel)<5) {
+        _body.vel = cpv(0,0);
+    }
+    else {
+        _body.vel = cpvmult(_body.vel,0.5); //dampening velocity
+    }
+    
+    // dampening angle
+    _body.angVel *=0.5;
+    // Correcting angle
+    
+    if (_body.angle >0.1 && fabs(_body.angVel)<0.3) {
+        _body.angVel = -0.4;
+        NSLog(@"cor");
+    }
+    else if (_body.angle <-0.1 && fabs(_body.angVel)<0.3) {
+        _body.angVel = 0.4;
+        NSLog(@"cor");
+    }
+    else if (_body.angle >0.001 && fabs(_body.angVel)<0.4) {
+        _body.angVel = -0.1;
+        NSLog(@"cor");
+    }
+    else if (_body.angle <-0.001 && fabs(_body.angVel)<0.4){
+        _body.angVel = 0.1;
+        NSLog(@"cor");
+    }
+    else if (fabs(_body.angle) <= 0.001 && fabs(_body.angVel)<0.3){
+        _body.angVel *= 0.5;
+        if (fabs(_body.angVel)<0.1)
+            _body.angVel = 0.0;
+    }
+    
 }
 
 -(id)initWithText:(NSString*)t{
