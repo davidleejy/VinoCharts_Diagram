@@ -24,4 +24,19 @@ NSUInteger NOTE_DEFAULT_HEIGHT = 90;
 //Easel (Easel is the thing that holds up the canvas)
 double EASEL_BORDER_CANVAS_BORDER_OFFSET = 260;
 
+
+/* Constants that aren't limits */
+
+//Notes
+NSUInteger NOTE_DEFAULT_FONT_SIZE = 12;
+
+/* Font Families*/
+NSString *FONT_HELVETICA = @"Helvetica";
+NSString *FONT_TIMESNEWROMAN = @"Times New Roman";
+NSString *FONT_COURIER = @"Courier";
+NSString *FONT_NOTEWORTHY = @"Noteworthy";
+NSString *FONT_VERDANA = @"Verdana";
+NSString *FONT_ARIAL = @"Arial";
+NSString *FONT_TREBUCHETMS = @"Trebuchet MS";
+
 @end

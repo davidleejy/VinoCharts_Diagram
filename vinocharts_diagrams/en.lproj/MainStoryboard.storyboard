@@ -114,6 +114,7 @@
                                             <action selector="resetZoomButton:" destination="wsB-aS-e8D" id="bcp-sB-mz7"/>
                                         </connections>
                                     </barButtonItem>
+                                    <barButtonItem title="Canvas Size" id="4tY-bY-hsz"/>
                                 </items>
                             </toolbar>
                         </subviews>

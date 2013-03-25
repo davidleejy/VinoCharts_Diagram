@@ -30,6 +30,8 @@
 @property (readwrite) ChipmunkSpace *space;
 @property (readwrite) NSMutableArray *notesArray;
 @property (readwrite) UIView *canvas;
+// Toolbar when editing a note
+@property (readwrite) UIToolbar *editNoteToolBar;
 // Memorise canvasWindow's height. Need this when desummoning keyboarding.
 @property (readwrite) double canvasWindowOrigHeight;
 // Data from another view controller's summoning of this view controller.
