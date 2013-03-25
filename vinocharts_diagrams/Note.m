@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 nus.cs3217. All rights reserved.
 //
 
+#define DBG_NOTE_CLASS 0
+
 #import "Note.h"
 #import "Constants.h"
 #import "ViewHelper.h"
@@ -30,19 +32,19 @@
     
     if (_body.angle >0.1 && fabs(_body.angVel)<0.3) {
         _body.angVel = -0.4;
-        NSLog(@"cor");
+        if (DBG_NOTE_CLASS) NSLog(@"DBG_NOTE_CLASS updatePos() is correcting angle");
     }
     else if (_body.angle <-0.1 && fabs(_body.angVel)<0.3) {
         _body.angVel = 0.4;
-        NSLog(@"cor");
+        if (DBG_NOTE_CLASS) NSLog(@"DBG_NOTE_CLASS updatePos() is correcting angle");
     }
     else if (_body.angle >0.001 && fabs(_body.angVel)<0.4) {
         _body.angVel = -0.1;
-        NSLog(@"cor");
+        if (DBG_NOTE_CLASS) NSLog(@"DBG_NOTE_CLASS updatePos() is correcting angle");
     }
     else if (_body.angle <-0.001 && fabs(_body.angVel)<0.4){
         _body.angVel = 0.1;
-        NSLog(@"cor");
+        if (DBG_NOTE_CLASS) NSLog(@"DBG_NOTE_CLASS updatePos() is correcting angle");
     }
     else if (fabs(_body.angle) <= 0.001 && fabs(_body.angVel)<0.3){
         _body.angVel *= 0.5;
@@ -129,6 +131,10 @@
 
 /******* UITextViewDelegate methods below *******/
 
+/*
+** The delegate method below concerns editing of the text in a UITextView.
+** Character limits are enforced here.
+*/
 -(BOOL)textView:(UITextView*)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     NSUInteger newLength = [textView.text length]+[text length] - range.length;
     if (newLength > NOTE_CONTENT_CHAR_LIM) {

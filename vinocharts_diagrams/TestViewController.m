@@ -81,16 +81,10 @@ static NSString *borderType = @"borderType";
 	
 	
 	// You have to actually put things in a Chipmunk space for it to do anything interesting.
-	// I've created a game object controller class called FallingButton that makes a UIButton that is influenced by physics.
     _n1 = [[Note alloc]initWithText:STR_WITH_140_CHARS];
 	// Add the uitextview to the view hierarchy.
 	[_rect1 addSubview:_n1.textView];
     
-    
-	
-	// Adding physics objects in Objective-Chipmunk is a snap thanks to the ChipmunkObject protocol.
-	// No matter how many physics objects (collision shapes, joints, etc) the fallingButton has, it can be added in a single line!
-	// See FallingButton.m to see how easy it is to implement the protocol.
 	[_space add:_n1];
 
     
@@ -121,7 +115,7 @@ static NSString *borderType = @"borderType";
 }
 
 - (IBAction)newNoteButton:(id)sender {
-    Note *newN = [[Note alloc]initWithText:@"I am a new note"];
+    Note *newN = [[Note alloc]initWithText:@"new"];
     [_rect1 addSubview:newN.textView];
     [_space add:newN];
     [_notesArray addObject:(Note*)newN];
@@ -173,7 +167,6 @@ static NSString *borderType = @"borderType";
         return TRUE;
 }
 
-//BOOKMARK
 
 -(BOOL)preCollision_Note_Note:(cpArbiter*)arbiter space:(ChipmunkSpace*)space{
     NSLog(@"pre");

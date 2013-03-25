@@ -17,12 +17,26 @@
 @property (weak, nonatomic) IBOutlet UIScrollView *canvasWindow;
 
 /*Actions*/
+- (IBAction)addNewNoteButton:(id)sender;
+- (IBAction)backButton:(id)sender;
 
 /*States*/
+@property (readwrite) BOOL editingANote;
+@property (readwrite) Note *noteBeingEdited;
 
 /*Properties*/
+@property (readwrite) CADisplayLink *displayLink;
+@property (readwrite) ChipmunkSpace *space;
+@property (readwrite) NSMutableArray *notesArray;
+@property (readwrite) UIView *rect1;
+// Data from another view controller's summoning of this view controller.
+@property (readwrite) double requestedCanvasWidth;
+@property (readwrite) double requestedCanvasHeight;
 
-/*Gesture Recognizers*/
+
+/*Gesture Recognizer Methods*/
+-(void)notePanResponse:(UIPanGestureRecognizer*)recognizer;
+// EFFECTS: Executes what a note is supposed to do during panning.
 
 /*Methods*/
 
