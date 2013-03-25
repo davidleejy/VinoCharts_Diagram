@@ -11,7 +11,7 @@
 #import <quartzcore/CADisplayLink.h>
 #import "Note.h"
 
-@interface EditDiagramController : UIViewController
+@interface EditDiagramController : UIViewController <UIScrollViewDelegate>
 
 /*Outlets*/
 @property (weak, nonatomic) IBOutlet UIScrollView *canvasWindow;
@@ -19,6 +19,7 @@
 /*Actions*/
 - (IBAction)addNewNoteButton:(id)sender;
 - (IBAction)backButton:(id)sender;
+- (IBAction)resetZoomButton:(id)sender;
 
 /*States*/
 @property (readwrite) BOOL editingANote;
@@ -29,6 +30,8 @@
 @property (readwrite) ChipmunkSpace *space;
 @property (readwrite) NSMutableArray *notesArray;
 @property (readwrite) UIView *canvas;
+// Memorise canvasWindow's height. Need this when desummoning keyboarding.
+@property (readwrite) double canvasWindowOrigHeight;
 // Data from another view controller's summoning of this view controller.
 @property (readwrite) double requestedCanvasWidth;
 @property (readwrite) double requestedCanvasHeight;

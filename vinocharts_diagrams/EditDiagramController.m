@@ -35,12 +35,20 @@ static NSString *borderType = @"borderType";
     CGSize easelSize = CGSizeMake(_requestedCanvasWidth+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0, _requestedCanvasHeight+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0);
     [_canvasWindow setContentSize:easelSize];
     [_canvasWindow setBackgroundColor:[UIColor grayColor]];
+    // Zoom
+    [_canvasWindow setDelegate:self];
+    [_canvasWindow setMaximumZoomScale:4.0];
+    [_canvasWindow setMinimumZoomScale:0.01];
+    [_canvasWindow setClipsToBounds:YES];
+    //Memorise original canvasWindow height.
+    _canvasWindowOrigHeight = _canvasWindow.frame.size.height;
     
     // Initialise _canvas
-    _rect1 = [[UIView alloc]initWithFrame:CGRectMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
+    _canvas = [[UIView alloc]initWithFrame:CGRectMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
                                                      EASEL_BORDER_CANVAS_BORDER_OFFSET, _requestedCanvasWidth, _requestedCanvasHeight)];
-    [_rect1 setBackgroundColor:[UIColor whiteColor]];
-    [_canvasWindow addSubview:_rect1];
+    [_canvas setBackgroundColor:[UIColor whiteColor]];
+    [_canvasWindow addSubview:_canvas];
+    
     
     // Initialise states
     _editingANote = NO;
@@ -48,7 +56,7 @@ static NSString *borderType = @"borderType";
     
     // Initialise _space (Chipmunk physics space)
     _space = [[ChipmunkSpace alloc] init];
-    [_space addBounds:_rect1.bounds
+    [_space addBounds:_canvas.bounds
             thickness:1000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
     [_space setGravity:cpv(0, 0)];
     
@@ -85,9 +93,16 @@ static NSString *borderType = @"borderType";
 
 -(void)noteDoubleTapResponse:(UITapGestureRecognizer*)recognizer {
     [((UITextView*)(recognizer.view.superview)) setEditable:YES];
+    //Summon keyboard.
     [((UITextView*)(recognizer.view.superview)) becomeFirstResponder];
+    //Adjusting states below. These states are kept for programmatically dismissing the keyboard.
     _editingANote = YES;
     _noteBeingEdited = ((Note*)((UITextView*)(recognizer.view.superview)).delegate);
+    //Move _canvasWindow to show the note being edited.
+    _canvasWindow.frame=CGRectMake(_canvasWindow.frame.origin.x, _canvasWindow.frame.origin.y, _canvasWindow.frame.size.width, 400);
+    CGRect rc = [_noteBeingEdited.textView convertRect:CGRectMake(0, 0, _noteBeingEdited.textView.frame.size.width, _noteBeingEdited.textView.frame.size.height) toView:_canvasWindow];
+    [_canvasWindow scrollRectToVisible:rc animated:YES];
+    
 }
 
 - (void)singleTapResponse:(UITapGestureRecognizer *)recognizer {
@@ -97,6 +112,8 @@ static NSString *borderType = @"borderType";
         _editingANote = NO;
         [_noteBeingEdited.textView setEditable:NO];
         _noteBeingEdited = nil;
+        //Reinstate _canvasWindow to original size
+        _canvasWindow.frame=CGRectMake(_canvasWindow.frame.origin.x, _canvasWindow.frame.origin.y, _canvasWindow.frame.size.width, _canvasWindowOrigHeight);
     }
 }
 
@@ -107,7 +124,7 @@ static NSString *borderType = @"borderType";
     Note *newN = [[Note alloc]initWithText:@"new"];
     
     // Determine coordinates of new note
-    CGPoint centerOfNewNote = [_rect1 convertPoint:CGPointMake(_canvasWindow.contentOffset.x+_canvasWindow.center.x, _canvasWindow.contentOffset.y+_canvasWindow.center.y) fromView:_canvasWindow];
+    CGPoint centerOfNewNote = [_canvas convertPoint:CGPointMake(_canvasWindow.contentOffset.x+_canvasWindow.center.x, _canvasWindow.contentOffset.y+_canvasWindow.center.y) fromView:_canvasWindow];
     newN.body.pos = centerOfNewNote; // Give coordinates to body ONLY.
     newN.textView.backgroundColor = [UIColor brownColor]; //Give color
     
@@ -122,12 +139,16 @@ static NSString *borderType = @"borderType";
     [newN.editView setUserInteractionEnabled:YES];
     
     [_notesArray addObject:(Note*)newN]; // Stored in property
-    [_rect1 addSubview:newN.textView]; // Visible to user
+    [_canvas addSubview:newN.textView]; // Visible to user
     [_space add:newN]; // Visible to physics engine
 }
 
 - (IBAction)backButton:(id)sender {
     [self dismissViewControllerAnimated:NO completion:nil];
+}
+
+- (IBAction)resetZoomButton:(id)sender {
+    [ViewHelper embedText:@"This button is just a stub." WithFrame:CGRectMake(300, 300, 100, 50) TextColor:[UIColor redColor] DurationSecs:1.0f In:self.view];
 }
 
 
@@ -167,6 +188,12 @@ static NSString *borderType = @"borderType";
 {
     return YES;
 }
+
+// =============== UIScrollView delegate method ===============
+-(UIView*)viewForZoomingInScrollView:(UIScrollView *)scrollView{
+    return _canvas;
+}
+
 
 // =============== DON'T CARE BELOW THIS LINE ===============
 
