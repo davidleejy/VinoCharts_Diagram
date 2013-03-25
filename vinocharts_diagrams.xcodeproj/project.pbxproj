@@ -27,6 +27,7 @@
 		FBB4DF4D16FEE19E007211D8 /* ViewHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB4DF4B16FEE09A007211D8 /* ViewHelper.m */; };
 		FBB4DF5016FF2A78007211D8 /* EditDiagramController.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB4DF4F16FF2A78007211D8 /* EditDiagramController.m */; };
 		FBB724E7170046C8000EC56D /* NewDiagramController.m in Sources */ = {isa = PBXBuildFile; fileRef = FBB724E6170046C8000EC56D /* NewDiagramController.m */; };
+		FBB724EB1700704D000EC56D /* tri.jpg in Resources */ = {isa = PBXBuildFile; fileRef = FBB724EA1700704D000EC56D /* tri.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -102,6 +103,7 @@
 		FBB4DF4F16FF2A78007211D8 /* EditDiagramController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditDiagramController.m; sourceTree = "<group>"; };
 		FBB724E5170046C8000EC56D /* NewDiagramController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewDiagramController.h; sourceTree = "<group>"; };
 		FBB724E6170046C8000EC56D /* NewDiagramController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewDiagramController.m; sourceTree = "<group>"; };
+		FBB724EA1700704D000EC56D /* tri.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = tri.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +173,7 @@
 				FB40EB6716FDE1ED00B7E9E8 /* TestViewController.m */,
 				FBB4DF4B16FEE09A007211D8 /* ViewHelper.m */,
 				FBB4DF4C16FEE09A007211D8 /* ViewHelper.h */,
+				FBB724E91700702A000EC56D /* Res */,
 				FB40EB1716FDE06100B7E9E8 /* Supporting Files */,
 			);
 			path = vinocharts_diagrams;
@@ -255,6 +258,14 @@
 			path = constraints;
 			sourceTree = "<group>";
 		};
+		FBB724E91700702A000EC56D /* Res */ = {
+			isa = PBXGroup;
+			children = (
+				FBB724EA1700704D000EC56D /* tri.jpg */,
+			);
+			name = Res;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -311,6 +322,7 @@
 				FB40EB2516FDE06100B7E9E8 /* Default@2x.png in Resources */,
 				FB40EB2716FDE06100B7E9E8 /* Default-568h@2x.png in Resources */,
 				FB40EB2A16FDE06100B7E9E8 /* MainStoryboard.storyboard in Resources */,
+				FBB724EB1700704D000EC56D /* tri.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,15 +28,22 @@
 @property (readwrite) CADisplayLink *displayLink;
 @property (readwrite) ChipmunkSpace *space;
 @property (readwrite) NSMutableArray *notesArray;
-@property (readwrite) UIView *rect1;
+@property (readwrite) UIView *canvas;
 // Data from another view controller's summoning of this view controller.
 @property (readwrite) double requestedCanvasWidth;
 @property (readwrite) double requestedCanvasHeight;
 
 
 /*Gesture Recognizer Methods*/
+
 -(void)notePanResponse:(UIPanGestureRecognizer*)recognizer;
 // EFFECTS: Executes what a note is supposed to do during panning.
+
+-(void)noteDoubleTapResponse:(UITapGestureRecognizer*)recognizer;
+// EFFECTS: Executes what a note is supposed to do when the button at the bottom left of the note is double tapped.
+
+- (void)singleTapResponse:(UITapGestureRecognizer *)recognizer;
+// EFFECTS: Executes what a single tap is supposed to do.
 
 /*Methods*/
 

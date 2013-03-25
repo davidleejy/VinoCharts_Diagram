@@ -24,7 +24,7 @@ static NSString *borderType = @"borderType";
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad]; // Do any additional setup after loading the view.
+    [super viewDidLoad];
     
     if(DEBUG) NSLog(@"Requested w & h are %.2f , %.2f", _requestedCanvasWidth, _requestedCanvasHeight);
     
@@ -53,11 +53,12 @@ static NSString *borderType = @"borderType";
     [_space setGravity:cpv(0, 0)];
     
     // Attach gesture recognizers
-
+    UITapGestureRecognizer *singleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapResponse:)];
+    [_canvasWindow addGestureRecognizer:singleTapRecog];
 }
 
 
-/* ***** Gesture Recognizer methods ****** */
+// =============== Gesture Recognizer methods ===============
 
 -(void)notePanResponse:(UIPanGestureRecognizer*)recognizer {
     
@@ -82,7 +83,24 @@ static NSString *borderType = @"borderType";
     }
 }
 
-/* ***** Toolbar buttons ****** */
+-(void)noteDoubleTapResponse:(UITapGestureRecognizer*)recognizer {
+    [((UITextView*)(recognizer.view.superview)) setEditable:YES];
+    [((UITextView*)(recognizer.view.superview)) becomeFirstResponder];
+    _editingANote = YES;
+    _noteBeingEdited = ((Note*)((UITextView*)(recognizer.view.superview)).delegate);
+}
+
+- (void)singleTapResponse:(UITapGestureRecognizer *)recognizer {
+    if (_editingANote)
+    {
+        [self.view endEditing:YES];
+        _editingANote = NO;
+        [_noteBeingEdited.textView setEditable:NO];
+        _noteBeingEdited = nil;
+    }
+}
+
+// =============== Toolbar buttons ===============
 
 - (IBAction)addNewNoteButton:(id)sender {
     
@@ -93,9 +111,15 @@ static NSString *borderType = @"borderType";
     newN.body.pos = centerOfNewNote; // Give coordinates to body ONLY.
     newN.textView.backgroundColor = [UIColor brownColor]; //Give color
     
-    //Attach gesture recognizer
+    /*Attach gesture recognizers*/
+    
     UIPanGestureRecognizer *panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(notePanResponse:)];
     [newN.textView addGestureRecognizer:panRecog];
+    
+    UITapGestureRecognizer *doubleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(noteDoubleTapResponse:)];
+    doubleTapRecog.numberOfTapsRequired = 2;
+    [newN.editView addGestureRecognizer:doubleTapRecog];
+    [newN.editView setUserInteractionEnabled:YES];
     
     [_notesArray addObject:(Note*)newN]; // Stored in property
     [_rect1 addSubview:newN.textView]; // Visible to user
@@ -103,10 +127,11 @@ static NSString *borderType = @"borderType";
 }
 
 - (IBAction)backButton:(id)sender {
+    [self dismissViewControllerAnimated:NO completion:nil];
 }
 
 
-/* ***** Chipmunk Physics Engine ****** */
+// =============== Chipmunk Physics Engine Stuff ===============
 
 // When the view appears on the screen, start the animation timer and tilt callbacks.
 - (void)viewDidAppear:(BOOL)animated {
@@ -136,14 +161,14 @@ static NSString *borderType = @"borderType";
 }
 
 
-/* ***** Orientation of this view controller ****** */
+// =============== Orientation of this view controller ===============
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
     return YES;
 }
 
-/* ***** DON'T CARE BELOW THIS LINE ****** */
+// =============== DON'T CARE BELOW THIS LINE ===============
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

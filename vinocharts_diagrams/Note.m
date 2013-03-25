@@ -66,13 +66,17 @@
         _beingPanned = NO;
         
         //Resize frame's dimensions to fit NOTE_CONTENT_CHAR_LIM number of chars.
-//        _textView.frame = CGRectMake(0, 0, NOTE_DEFAULT_WIDTH ,NOTE_DEFAULT_HEIGHT);
         _textView.bounds = CGRectMake(0, 0, NOTE_DEFAULT_WIDTH ,NOTE_DEFAULT_HEIGHT);
         NSLog(@"content size %.5f,%.5f",_textView.contentSize.width,_textView.contentSize.height);
 		        
         _textView.frame = CGRectMake(_textView.frame.origin.x, _textView.frame.origin.y, NOTE_DEFAULT_WIDTH, NOTE_DEFAULT_HEIGHT);
         
         [_textView setEditable:NO];
+        
+        //Attach a button to the _textview so that the user can click on it to edit this view.
+        _editView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"tri.jpg"]];
+        _editView.frame = CGRectMake(0, NOTE_DEFAULT_HEIGHT-20, 20, 20);
+        [_textView addSubview:_editView];
         
 		// Set up Chipmunk objects.
 		cpFloat mass = 50;

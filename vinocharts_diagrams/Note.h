@@ -12,6 +12,7 @@
 @interface Note : NSObject <ChipmunkObject,UITextViewDelegate>
 
 @property (readwrite) UITextView *textView;
+@property (readwrite) UIImageView *editView;
 @property (readwrite) ChipmunkBody *body;
 @property (readwrite) NSArray *chipmunkObjects;
 
