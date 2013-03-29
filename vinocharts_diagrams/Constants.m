@@ -20,6 +20,7 @@ NSUInteger NOTE_DEFAULT_WIDTH = 260;
 NSUInteger NOTE_DEFAULT_HEIGHT = 90;
 
 //Canvas
+NSUInteger CANVAS_NOTE_COUNT_LIM = 100;
 
 //Easel (Easel is the thing that holds up the canvas)
 double EASEL_BORDER_CANVAS_BORDER_OFFSET = 260;

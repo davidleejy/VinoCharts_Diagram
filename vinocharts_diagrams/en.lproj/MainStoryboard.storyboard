@@ -66,7 +66,7 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="createCanvasButton:" destination="DGV-ur-Unw" eventType="touchUpInside" id="Ias-sg-Zff"/>
+                                    <segue destination="wsB-aS-e8D" kind="modal" identifier="EditDiagramController" animates="NO" id="SxW-Np-H67"/>
                                 </connections>
                             </button>
                         </subviews>
