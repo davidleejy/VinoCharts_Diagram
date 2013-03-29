@@ -12,6 +12,7 @@
 #import "Note.h"
 #import "CanvasSettingController.h"
 #import "GridView.h"
+@class MinimapView;
 
 @interface EditDiagramController : UIViewController <UIScrollViewDelegate, UIPopoverControllerDelegate, CanvasSettingControllerDelegate>
 
@@ -31,7 +32,7 @@
 @property (readwrite) BOOL editingANote;
 @property (readwrite) Note *noteBeingEdited;
 @property (readwrite) BOOL snapToGridEnabled;
-
+@property (readwrite) BOOL minimapEnabled;
 
 
 
@@ -66,6 +67,8 @@
 //TODO
 @property (readwrite) UIView *minimap;
 @property (readwrite) UIView *minimap2;
+@property (readwrite) UIView *minimapDisplay;
+@property (readwrite) MinimapView *mV1;
 
 /*Gesture Recognizer Methods*/
 

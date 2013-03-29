@@ -16,6 +16,7 @@
 
 #import "GridView.h"
 #import "AlignmentLineView.h"
+#import "MinimapView.h"
 
 #import "Constants.h"
 #import "ViewHelper.h"
@@ -25,6 +26,8 @@
 // An object to use as a collision type for the screen border.
 // Class objects and strings are easy and convenient to use as collision types.
 static NSString *borderType = @"borderType";
+
+
 
 @implementation EditDiagramController
 
@@ -93,6 +96,7 @@ static NSString *borderType = @"borderType";
     _editingANote = NO;
     _noteBeingEdited = nil;
     _snapToGridEnabled = NO;
+    _minimapEnabled = NO;
     
     // Initialise _space (Chipmunk physics space)
     _space = [[ChipmunkSpace alloc] init];
@@ -164,6 +168,10 @@ static NSString *borderType = @"borderType";
                                  _actualCanvasWidth*[_canvasWindow zoomScale],
                                  _actualCanvasHeight*[_canvasWindow zoomScale])];
     
+    // Center content view in _canvasWindow. Don't know why this works. But it does.
+    [_canvasWindow setZoomScale:[_canvasWindow zoomScale]-0.01 animated:NO]; //Scale to something slightly smaller than zoomscale that we used before segueing to canvas settings controller.
+    [_canvasWindow setZoomScale:[_canvasWindow zoomScale] animated:YES]; //Reinstate zoomScale before changing canvas settings
+    
     // Remove all notes from space.
     for (int i =0; i < _notesArray.count; i++) {
         [_space remove:[ _notesArray objectAtIndex:i]];
@@ -187,6 +195,13 @@ static NSString *borderType = @"borderType";
         [self gridSnappingButton:nil];
         [self gridSnappingButton:nil];
     }
+    
+    // Redo minimap
+    [_mV1 removeFromSuperview];
+    _mV1 = [[MinimapView alloc]initWithMinimapDisplayFrame:CGRectMake(800, 480, 200, 200) MapOf:_canvas PopulateWith:_notesArray];
+    [_mV1 setAlpha:0.8]; // make transparent.
+    [self.view addSubview:_mV1];
+    
     
     [[_currentPopoverSegue popoverController] dismissPopoverAnimated: YES]; // dismiss the popover.
 }
@@ -405,61 +420,17 @@ static NSString *borderType = @"borderType";
 
 - (IBAction)minimapButton:(id)sender {
     
-    //one delta time stepping of the minimap.
-    
-    [DebugHelper printCGRect:_canvas.bounds :@"canvas bounds"];
-    
-    //remove old shit
-    if ([_minimap isDescendantOfView:self.view]) {
-        [_minimap removeFromSuperview];
-        NSLog(@"aegfse");
+    if (_minimapEnabled) { 
+        [_mV1 removeFromSuperview];
+        _minimapEnabled = NO; //toggle.
     }
-    if ([_minimap2 isDescendantOfView:self.view]) {
-        [_minimap2 removeFromSuperview];
-        NSLog(@"aegfse2");
+    else {
+        _mV1 = [[MinimapView alloc]initWithMinimapDisplayFrame:CGRectMake(800, 480, 200, 200) MapOf:_canvas PopulateWith:_notesArray];
+        [_mV1 setAlpha:0.8]; // make transparent.
+        [self.view addSubview:_mV1];
+        _minimapEnabled = YES; //toggle.
     }
     
-    //minimap 1 is add everything then transform and shift.
-    
-    _minimap = [[UIView alloc]initWithFrame:_canvas.bounds];
-    [_minimap setBackgroundColor:[UIColor blackColor]];
-    for (int i = 0; i < _notesArray.count; i++) {
-        Note *newN = [[Note alloc]initWithText:@"t"];
-        newN.textView.frame = ((Note*)[_notesArray objectAtIndex:i]).textView.frame;
-        [_minimap addSubview:newN.textView];
-    }
-    _minimap.transform = CGAffineTransformScale(_minimap.transform, 0.3, 0.3);
-    [DebugHelper printCGRect:_minimap.bounds :@"minimap bounds"];
-    [DebugHelper printCGRect:_minimap.frame :@"minimap frame"];
-    
-    _minimap.frame = CGRectMake(20, 0, _minimap.frame.size.width, _minimap.frame.size.height);
-    [DebugHelper printCGRect:_minimap.frame :@"minimap frame"];
-    [self.view addSubview:_minimap];
-    
-    
-    // trying to make minmap and minimap2 similar.
-    
-    //minimap 2 is transform, then add.
-    
-    _minimap2 = [[UIView alloc]initWithFrame:_canvas.bounds];
-    [_minimap2 setBackgroundColor:[UIColor blackColor]];
-    _minimap2.transform = CGAffineTransformScale(_minimap2.transform, 0.3, 0.3);
-    [DebugHelper printCGRect:_minimap2.bounds :@"minimap2 bounds"];
-    [DebugHelper printCGRect:_minimap2.frame :@"minimap2 frame"];
-    _minimap2.frame = CGRectMake(400, 0, _minimap2.frame.size.width, _minimap2.frame.size.height);
-    [DebugHelper printCGRect:_minimap2.frame :@"minimap2 frame aft"];
-//    _minimap2.transform = CGAffineTransformIdentity;
-    [self.view addSubview:_minimap2];
-    for (int i = 0; i < _notesArray.count; i++) {
-        Note *newN = [[Note alloc]initWithText:@"t"];
-        newN.textView.frame = ((Note*)[_notesArray objectAtIndex:i]).textView.frame;
-//        newN.textView.transform = CGAffineTransformScale(newN.textView.transform, 0.3, 0.3);
-        [_minimap2 addSubview:newN.textView];
-        
-    }
-//    minimap2.transform = CGAffineTransformScale(minimap.transform, 0.3, 0.3);
-//    minimap2.frame = CGRectMake(400, 0, minimap.frame.size.width, minimap.frame.size.height);
-//    [self.view addSubview:minimap2];
 }
 
 
@@ -552,6 +523,11 @@ static NSString *borderType = @"borderType";
     
     for (int i = 0; i<_notesArray.count; i++) {
         [[_notesArray objectAtIndex:i]updatePos];
+    }
+    
+    if (_minimapEnabled) {
+        [_mV1 removeAllNotes];
+        [_mV1 remakeWith:_notesArray];
     }
 }
 
