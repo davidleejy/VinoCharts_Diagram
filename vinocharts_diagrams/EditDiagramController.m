@@ -72,6 +72,8 @@ static NSString *borderType = @"borderType";
                                                       _requestedCanvasWidth,
                                                       _requestedCanvasHeight)];
     
+    // Do not set _canvasWindow contentSize, let it vary freely.
+    
 //    [_canvasWindow setContentSize:_canvas.frame.size];
 //    [_canvasWindow setContentInset:UIEdgeInsetsMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
 //                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET,
@@ -82,17 +84,10 @@ static NSString *borderType = @"borderType";
     [_canvasWindow addSubview:_canvas];
     
     // Center content view in _canvasWindow
-    // The following 3 lines are necessary to kickstart the centering.
-//    [_canvasWindow setZoomScale:0.98 animated:NO];
-//    [_canvasWindow setZoomScale:1 animated:YES];
-//     _canvas.frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:_canvasWindow
-//                                                           AndWithContentView:_canvas];
-    [DebugHelper printUIScrollView:_canvasWindow :@"load cW"];
-    //content size is 0,0
+    // _canvasWindow.contentSize is 0,0 now.
     [_canvasWindow setZoomScale:0.98 animated:NO];
     [_canvasWindow setZoomScale:1 animated:YES];
-    //content size takes on _canvas.bounds
-    [DebugHelper printUIScrollView:_canvasWindow :@"load cW2"];
+    // _canvasWindow.contentSize is _canvas.bounds now.
     
     // Initialise states
     _editingANote = NO;
@@ -104,15 +99,7 @@ static NSString *borderType = @"borderType";
     [_space addBounds:_canvas.bounds
             thickness:100000.0f elasticity:0.2f friction:0.8 layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
     [_space setGravity:cpv(0, 0)];
-    
-    // Initialising Collision Handlers
-    [_space addCollisionHandler:self
-                         typeA:[Note class] typeB:borderType
-                         begin:@selector(beginCollision:space:)
-                      preSolve:nil
-                     postSolve:nil
-                      separate:nil
-     ];
+    [self createCollisionHandlers];
 
     
     // Initialise gridView
@@ -188,6 +175,7 @@ static NSString *borderType = @"borderType";
     [_space addBounds:_canvas.bounds
             thickness:100000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
     [_space setGravity:cpv(0, 0)];
+    [self createCollisionHandlers];//MUST ALSO REASSIGN COLLISION HANDLERS.
     
     // Add notes to new space.
     for (int i =0; i < _notesArray.count; i++) {
@@ -567,7 +555,15 @@ static NSString *borderType = @"borderType";
     }
 }
 
-
+-(void)createCollisionHandlers{
+    [_space addCollisionHandler:self
+                          typeA:[Note class] typeB:borderType
+                          begin:@selector(beginCollision:space:)
+                       preSolve:nil
+                      postSolve:nil
+                       separate:nil
+     ];
+}
 
 - (bool)beginCollision:(cpArbiter*)arbiter space:(ChipmunkSpace*)space {
 	CHIPMUNK_ARBITER_GET_SHAPES(arbiter, noteShape, border);
