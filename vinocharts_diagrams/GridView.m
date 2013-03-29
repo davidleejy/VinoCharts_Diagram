@@ -43,28 +43,32 @@
     
     //Begin drawing grid lines
     
-    CGContextSetStrokeColor(contextRef, CGColorGetComponents(_lineColor.CGColor)); //Set color of lines of grid.
-    CGContextSetLineWidth(contextRef, 1.0);
+    CGContextSetStrokeColor(contextRef, CGColorGetComponents(_lineColor.CGColor)); //Set color of grid lines.
+    CGContextSetLineWidth(contextRef, 1.0); // Set width of grid lines.
     
     //draw vertical lines.
     for (int i = 0; i < self.bounds.size.width; i+=_step) {
         CGContextMoveToPoint(contextRef, i, 0);
         CGContextAddLineToPoint(contextRef, i, self.bounds.size.height);
-        CGContextStrokePath(contextRef); //stroke path
+        CGContextStrokePath(contextRef); //stroke path.
     }
     
     //draw horizontal lines.
     for (int i = 0; i < self.bounds.size.height; i+=_step) {
         CGContextMoveToPoint(contextRef, 0, i);
         CGContextAddLineToPoint(contextRef, self.bounds.size.width, i);
-        CGContextStrokePath(contextRef); //stroke path
+        CGContextStrokePath(contextRef); //stroke path.
     }
-    
     
 }
 
 - (void)redrawWithLineColor:(UIColor *)lineColor{
     _lineColor = lineColor;
+    [self setNeedsDisplay];
+}
+
+- (void)redrawWithStep:(double)myStep {
+    _step = myStep;
     [self setNeedsDisplay];
 }
 

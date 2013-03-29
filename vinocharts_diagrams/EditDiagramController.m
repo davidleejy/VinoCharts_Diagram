@@ -12,6 +12,8 @@
 
 #import "Note.h"
 
+#import "CanvasSettingController.h"
+
 #import "Constants.h"
 #import "ViewHelper.h"
 
@@ -35,8 +37,9 @@ static NSString *borderType = @"borderType";
     [self createEditNoteToolBar];
     
     // Initialise _canvasWindow
-    CGSize easelSize = CGSizeMake(_requestedCanvasWidth+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0, _requestedCanvasHeight+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0);
-    [_canvasWindow setContentSize:easelSize];
+//    CGSize easelSize = CGSizeMake(_requestedCanvasWidth+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0, _requestedCanvasHeight+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0);
+//    [_canvasWindow setContentSize:easelSize];
+    
     [_canvasWindow setBackgroundColor:[UIColor grayColor]];
     // Zooming
     [_canvasWindow setDelegate:self];
@@ -47,14 +50,21 @@ static NSString *borderType = @"borderType";
     _canvasWindowOrigHeight = _canvasWindow.frame.size.height;
     
     // Initialise _canvas
-    _canvas = [[UIView alloc]initWithFrame:CGRectMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
-                                                     EASEL_BORDER_CANVAS_BORDER_OFFSET,
+//    _canvas = [[UIView alloc]initWithFrame:CGRectMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
+//                                                     EASEL_BORDER_CANVAS_BORDER_OFFSET,
+//                                                      _requestedCanvasWidth,
+//                                                      _requestedCanvasHeight)];
+    //todo clear up the initialisation of canvaswindow. Namely, decide on whether setting content insets is good anot.
+    _canvas = [[UIView alloc]initWithFrame:CGRectMake(0,
+                                                      0,
                                                       _requestedCanvasWidth,
                                                       _requestedCanvasHeight)];
-//    _canvas = [[UIImageView alloc]initWithFrame:CGRectMake(0,
-//                                                           0,
-//                                                           _requestedCanvasWidth,
-//                                                           _requestedCanvasHeight)];
+    
+    [_canvasWindow setContentSize:_canvas.frame.size];
+    [_canvasWindow setContentInset:UIEdgeInsetsMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
+                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET,
+                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET,
+                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET)];
     
     [_canvas setBackgroundColor:[UIColor whiteColor]];
     [_canvasWindow addSubview:_canvas];
@@ -74,6 +84,65 @@ static NSString *borderType = @"borderType";
     UITapGestureRecognizer *singleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapResponse:)];
     [_canvasWindow addGestureRecognizer:singleTapRecog];
     
+}
+
+// =============== Segues ==================
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    
+    if ([segue.identifier isEqualToString:@"CanvasSettingController"]) {
+        _currentPopoverSegue = (UIStoryboardPopoverSegue *)segue; // Will be used in dismissing this popover.
+        _canvasSettingController = [segue destinationViewController];
+        [_canvasSettingController setDelegate:self]; //Set delegate. IMPORTANT!
+        // Initialise popover view's information.
+        NSString *currCanvasW = [NSString stringWithFormat:@"%.2f",_canvas.frame.size.width];
+        NSString *currCanvasH = [NSString stringWithFormat:@"%.2f",_canvas.frame.size.height];
+        _canvasSettingController.widthDisplay.text = currCanvasW;
+        _canvasSettingController.heightDisplay.text = currCanvasH;
+    }
+}
+
+
+// =============== Canvas Settings ==================
+
+// CanvasSettingControllerDelegate callback function
+- (void)CanvasSettingControllerDelegateOkButton:(double)newWidth :(double)newHeight{
+    
+    // Modify _canvas.
+    [_canvas setFrame:CGRectMake(_canvas.frame.origin.x,
+                                _canvas.frame.origin.y,
+                                 newWidth, newHeight)];
+    
+    // Remove all notes from space.
+    for (int i =0; i < _notesArray.count; i++) {
+        [_space remove:[ _notesArray objectAtIndex:i]];
+    }
+    
+    // Modify _space. (Destroy and make anew);
+    _space = nil;
+    _space = [[ChipmunkSpace alloc] init];
+    [_space addBounds:_canvas.bounds
+            thickness:100000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
+    [_space setGravity:cpv(0, 0)];
+    
+    // Add notes to new space.
+    for (int i =0; i < _notesArray.count; i++) {
+        [_space add:[ _notesArray objectAtIndex:i]];
+    }
+    
+    // Display alert.
+    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"Canvas settings successfully changed.\nWidth:%.2f Height:%.2f",newWidth,newHeight]
+                                                   message:nil
+                                                  delegate:self
+                                         cancelButtonTitle:@"OK"
+                                         otherButtonTitles:nil];
+    [alert show];
+    
+    [[_currentPopoverSegue popoverController] dismissPopoverAnimated: YES]; // dismiss the popover.
+}
+
+// CanvasSettingControllerDelegate callback function
+- (void)CanvasSettingControllerDelegateCancelButton{
+    [[_currentPopoverSegue popoverController] dismissPopoverAnimated: YES]; // dismiss the popover.
 }
 
 
@@ -142,7 +211,7 @@ static NSString *borderType = @"borderType";
 
 - (IBAction)addNewNoteButton:(id)sender {
     
-    // Keeop number of notes under limit.
+    // Limit the max number of notes a canvas can have.
     if (_notesArray.count > CANVAS_NOTE_COUNT_LIM) {
         UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"Cannot exceed %d notes on one diagram.",CANVAS_NOTE_COUNT_LIM]
                                                        message:nil

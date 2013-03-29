@@ -17,4 +17,6 @@
 
 - (void)redrawWithLineColor:(UIColor *)lineColor;
 
+- (void)redrawWithStep:(double)myStep;
+
 @end

@@ -10,8 +10,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import <quartzcore/CADisplayLink.h>
 #import "Note.h"
+#import "CanvasSettingController.h"
 
-@interface EditDiagramController : UIViewController <UIScrollViewDelegate>
+@interface EditDiagramController : UIViewController <UIScrollViewDelegate, UIPopoverControllerDelegate, CanvasSettingControllerDelegate>
 
 /*Outlets*/
 @property (weak, nonatomic) IBOutlet UIScrollView *canvasWindow;
@@ -37,6 +38,9 @@
 // Data from another view controller's summoning of this view controller.
 @property (readwrite) double requestedCanvasWidth;
 @property (readwrite) double requestedCanvasHeight;
+// Canvas Setting Controller. Popover kind.
+@property (readwrite) CanvasSettingController *canvasSettingController;
+@property (readwrite) UIStoryboardPopoverSegue *currentPopoverSegue;
 
 
 /*Gesture Recognizer Methods*/

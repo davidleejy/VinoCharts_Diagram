@@ -23,16 +23,7 @@
     _heightOutput.text = [NSString stringWithFormat:@"%.2f",_height];
     _widthOutput.text = [NSString stringWithFormat:@"%.2f",_width];
     
-//    //TODO
-//    UIGraphicsBeginImageContextWithOptions(newImageSize, YES, 0);
-//
-//    CGContextRef context = UIGraphicsGetCurrentContext();
-//    CGContextSetStrokeColorWithColor(context, [UIColor blackColor].CGColor);
-//    CGContextSetLineWidth(context, 1.0f);
-//    CGContextMoveToPoint(context, 10, 10);
-//    CGContextAddLineToPoint(context, 100, 50);
-//    CGContextStrokePath(context);
-    
+//todo
     _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, 400, 400) Step:10 LineColor:[UIColor redColor]  ];
     [self.view addSubview:_grid];
     [_grid setNeedsDisplay];
