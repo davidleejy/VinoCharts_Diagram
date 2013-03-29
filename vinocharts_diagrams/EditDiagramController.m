@@ -247,7 +247,11 @@ static NSString *borderType = @"borderType";
     }
     else{
         //Without snap to grid, alignment lines redraw to demarcate note itself.
-        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines redrawWithDemarcatedFrame:((UITextView*)recognizer.view).frame];
+        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines redrawWithDemarcatedFrame:
+         CGRectMake(((Note*)((UITextView*)recognizer.view).delegate).body.pos.x - ((UITextView*)recognizer.view).frame.size.width/2.0,
+                    ((Note*)((UITextView*)recognizer.view).delegate).body.pos.y - ((UITextView*)recognizer.view).frame.size.height/2.0,
+                    ((UITextView*)recognizer.view).frame.size.width,
+                    ((UITextView*)recognizer.view).frame.size.height)];
     }
     
     
@@ -487,7 +491,6 @@ static NSString *borderType = @"borderType";
 
 // =============== UIScrollView delegate method ===============
 -(UIView*)viewForZoomingInScrollView:(UIScrollView *)scrollView{
-    NSLog(@"zooooooming");
     return _canvas;
 }
 
