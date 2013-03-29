@@ -16,22 +16,22 @@
 {
     [super viewDidLoad]; // Do any additional setup after loading the view.
     
-    _height = 10000; _width = 10000;
+    _height = 10; _width = 200;
     _heightOutput.text = [NSString stringWithFormat:@"%.2f",_height];
     _widthOutput.text = [NSString stringWithFormat:@"%.2f",_width];
     
 }
 
-- (IBAction)createCanvasButton:(id)sender {
+
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+
+    if ([segue.identifier isEqualToString:@"EditDiagramController"]) {
+        EditDiagramController *eDC = [segue destinationViewController];
+        eDC.requestedCanvasHeight = _height;
+        eDC.requestedCanvasWidth = _width;
+    }
     
-    EditDiagramController *eDC = [self.storyboard instantiateViewControllerWithIdentifier:@"EditDiagramController"];
-    
-    eDC.requestedCanvasHeight = _height;
-    eDC.requestedCanvasWidth = _width;
-    
-    // *** Transit to edit diagram scene ***
-    
-    [self presentViewController:eDC animated:NO completion:nil];
 }
 
 /* ***** Orientation ****** */
@@ -66,4 +66,19 @@
     [self setWidthOutput:nil];
     [super viewDidUnload];
 }
+
+// Old stuff
+- (IBAction)createCanvasButton:(id)sender {
+    
+    EditDiagramController *eDC = [self.storyboard instantiateViewControllerWithIdentifier:@"EditDiagramController"];
+    
+    eDC.requestedCanvasHeight = _height;
+    eDC.requestedCanvasWidth = _width;
+    
+    // *** Transit to edit diagram scene ***
+    
+    [self presentViewController:eDC animated:NO completion:nil];
+}
+
+
 @end

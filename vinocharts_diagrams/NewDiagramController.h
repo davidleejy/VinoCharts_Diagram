@@ -15,7 +15,7 @@
 @property (readwrite) double width;
 
 /*Actions*/
-- (IBAction)createCanvasButton:(id)sender;
+- (IBAction)createCanvasButton:(id)sender; //NOT CONNECTED. OLD. USING SEGUE NOW.
 
 /*Outlets*/
 @property (weak, nonatomic) IBOutlet UILabel *heightOutput;
