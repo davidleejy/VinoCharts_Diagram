@@ -10,7 +10,6 @@
 #import "EditDiagramController.h"
 #import <QuartzCore/QuartzCore.h>
 #import <CoreGraphics/CoreGraphics.h>
-#import "GridView.h"
 
 @implementation NewDiagramController
 
@@ -22,6 +21,7 @@
     _height = 600; _width = 600;
     _heightOutput.text = [NSString stringWithFormat:@"%.2f",_height];
     _widthOutput.text = [NSString stringWithFormat:@"%.2f",_width];
+    
     
 }
 

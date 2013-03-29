@@ -27,7 +27,6 @@
         _step = s;
         [self setBackgroundColor:[UIColor clearColor]]; //Make background transparent
         _lineColor = lcolor;
-        //drawRect is called and grid lines are drawn!
     }
     return self;
 }

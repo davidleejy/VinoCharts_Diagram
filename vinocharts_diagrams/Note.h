@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "ObjectiveChipmunk.h"
+@class AlignmentLineView;
 
 @interface Note : NSObject <ChipmunkObject,UITextViewDelegate>
 
@@ -15,6 +16,7 @@
 @property (readwrite) UIImageView *editView;
 @property (readwrite) UIImageView *frameOriginIndicator;
 @property (readwrite) UIImageView *foreShadow; //Used in snap to grid to show where note will land after snapping.
+@property (readwrite) AlignmentLineView *alignmentLines; //Used to help users arrange their notes.
 @property (readwrite) ChipmunkBody *body;
 @property (readwrite) NSArray *chipmunkObjects;
 

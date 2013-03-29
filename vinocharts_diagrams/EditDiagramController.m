@@ -15,6 +15,7 @@
 #import "CanvasSettingController.h"
 
 #import "GridView.h"
+#import "AlignmentLineView.h"
 
 #import "Constants.h"
 #import "ViewHelper.h"
@@ -107,6 +108,7 @@ static NSString *borderType = @"borderType";
 //    [ViewHelper embedMark:CGPointMake(45, 45) WithColor:[ViewHelper invColorOf:[UIColor greenColor]] DurationSecs:0 In:_canvas];
 //    [ViewHelper embedMark:CGPointMake(60, 60) WithColor:[ViewHelper invColorOf:[UIColor blueColor]] DurationSecs:0 In:_canvas];
     
+    
 }
 
 // =============== Segues ==================
@@ -190,6 +192,15 @@ static NSString *borderType = @"borderType";
         ((UITextView*)recognizer.view).alpha = 0.7; //Dim note's appearance.
         [_canvas bringSubviewToFront:((UITextView*)recognizer.view)]; //Give illusion of lifting note up from canvas.
         
+        // Prepare alignment lines.
+        ((Note*)((UITextView*)recognizer.view).delegate).alignmentLines = [[AlignmentLineView alloc]initToDemarcateFrame:((UITextView*)recognizer.view).frame
+                                                                                                                      In:_canvas.frame
+                                                                                                               LineColor:[ViewHelper invColorOf:_canvas.backgroundColor]];
+        // Show the alignment lines.
+        [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).alignmentLines];
+        // Move the alignment lines to the back.
+        [_canvas sendSubviewToBack:((Note*)((UITextView*)recognizer.view).delegate).alignmentLines];
+        
         if (_snapToGridEnabled){
             [((Note*)((UITextView*)recognizer.view).delegate) showFrameOriginIndicator]; //show indicator
             
@@ -203,9 +214,11 @@ static NSString *borderType = @"borderType";
             //Show foreshadow.
             [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).foreShadow];
         }
-    }
     
-    // Gesture Recognizer is in progress...
+            
+    } // End  recognizer.state == UIGestureRecognizerStateBegan
+    
+    /* Gesture Recognizer is in progress...    */
         
     cpVect origBodyPos = ((Note*)((UITextView*)recognizer.view).delegate).body.pos;
     
@@ -228,7 +241,16 @@ static NSString *borderType = @"borderType";
         double snappedY = ((int)(unsnappedY/step))*step;
         // Move foreShadow to help user visualize where the note will rest after he releases his finger.
         [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setFrame:CGRectMake(snappedX, snappedY, ((Note*)((UITextView*)recognizer.view).delegate).foreShadow.frame.size.width, ((Note*)((UITextView*)recognizer.view).delegate).foreShadow.frame.size.height)];
+        
+        // With snap to grid, alignment lines redraw to demarcate foreshadow.
+        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines redrawWithDemarcatedFrame:((Note*)((UITextView*)recognizer.view).delegate).foreShadow.frame];
     }
+    else{
+        //Without snap to grid, alignment lines redraw to demarcate note itself.
+        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines redrawWithDemarcatedFrame:((UITextView*)recognizer.view).frame];
+    }
+    
+    
     
     [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
     
@@ -257,6 +279,7 @@ static NSString *borderType = @"borderType";
             [((Note*)((UITextView*)recognizer.view).delegate).foreShadow removeFromSuperview];
         }
         
+        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines removeFromSuperview]; // Hide alignment lines.
         _canvasWindow.scrollEnabled = YES; //enable scrolling
         [_space add:((Note*)((UITextView*)recognizer.view).delegate)]; //Re-add note into space
         ((UITextView*)recognizer.view).alpha = 1; //Un-dim note's appearance.
