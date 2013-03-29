@@ -31,16 +31,24 @@
 @property (readwrite) ChipmunkSpace *space;
 @property (readwrite) NSMutableArray *notesArray;
 @property (readwrite) UIView *canvas;
+
 // Toolbar when editing a note
 @property (readwrite) UIToolbar *editNoteToolBar;
+
 // Memorise canvasWindow's height. Need this when desummoning keyboarding.
 @property (readwrite) double canvasWindowOrigHeight;
-// Data from another view controller's summoning of this view controller.
+
+// Data from another view controller's summoning of this view controller. Only used ONCE when initialising this view controller.
 @property (readwrite) double requestedCanvasWidth;
 @property (readwrite) double requestedCanvasHeight;
+
 // Canvas Setting Controller. Popover kind.
 @property (readwrite) CanvasSettingController *canvasSettingController;
 @property (readwrite) UIStoryboardPopoverSegue *currentPopoverSegue;
+
+// Actual width and height of canvas. Not affected by zooming of _canvasWindow.  _canvasWindow will affect the width and height of _canvas (a UIView* that is attached to a UIScrollView*, _canvasWindow.)
+@property (readwrite) double actualCanvasWidth;
+@property (readwrite) double actualCanvasHeight;
 
 
 /*Gesture Recognizer Methods*/

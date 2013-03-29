@@ -22,11 +22,7 @@
 	// Do any additional setup after loading the view.
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
+
 
 - (IBAction)okButton:(id)sender {
     NSNumberFormatter * f = [[NSNumberFormatter alloc] init];
@@ -89,6 +85,12 @@
         // Custom initialization
     }
     return self;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
 
 @end

@@ -36,6 +36,14 @@ static NSString *borderType = @"borderType";
     // Initialise toolbar that appears when editing notes
     [self createEditNoteToolBar];
     
+    // Initialise actual dimensions of canvas.
+    // The actual dimensions of the canvas differ from the frame of _canvas when zooming
+    // takes place in the _canvasWindow.
+    _actualCanvasHeight = _requestedCanvasHeight;
+    _actualCanvasWidth = _requestedCanvasWidth;
+    /*TODO see if you can delete requestedcanvaswidth and requestedcanvasheight.
+     And replace them with actualcanvaswidth and actualcanvasheight.*/
+    
     // Initialise _canvasWindow
 //    CGSize easelSize = CGSizeMake(_requestedCanvasWidth+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0, _requestedCanvasHeight+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0);
 //    [_canvasWindow setContentSize:easelSize];
@@ -94,8 +102,8 @@ static NSString *borderType = @"borderType";
         _canvasSettingController = [segue destinationViewController];
         [_canvasSettingController setDelegate:self]; //Set delegate. IMPORTANT!
         // Initialise popover view's information.
-        NSString *currCanvasW = [NSString stringWithFormat:@"%.2f",_canvas.frame.size.width];
-        NSString *currCanvasH = [NSString stringWithFormat:@"%.2f",_canvas.frame.size.height];
+        NSString *currCanvasW = [NSString stringWithFormat:@"%.2f",_actualCanvasWidth];
+        NSString *currCanvasH = [NSString stringWithFormat:@"%.2f",_actualCanvasHeight];
         _canvasSettingController.widthDisplay.text = currCanvasW;
         _canvasSettingController.heightDisplay.text = currCanvasH;
     }
@@ -107,10 +115,15 @@ static NSString *borderType = @"borderType";
 // CanvasSettingControllerDelegate callback function
 - (void)CanvasSettingControllerDelegateOkButton:(double)newWidth :(double)newHeight{
     
+    // Update actual canvas height and width.
+    _actualCanvasHeight = newHeight;
+    _actualCanvasWidth = newWidth;
+    
     // Modify _canvas.
     [_canvas setFrame:CGRectMake(_canvas.frame.origin.x,
                                 _canvas.frame.origin.y,
-                                 newWidth, newHeight)];
+                                 _actualCanvasWidth*[_canvasWindow zoomScale],
+                                 _actualCanvasHeight*[_canvasWindow zoomScale])];
     
     // Remove all notes from space.
     for (int i =0; i < _notesArray.count; i++) {
@@ -250,7 +263,13 @@ static NSString *borderType = @"borderType";
 }
 
 - (IBAction)resetZoomButton:(id)sender {
-    [ViewHelper embedText:@"This button is just a stub." WithFrame:CGRectMake(300, 300, 100, 50) TextColor:[UIColor redColor] DurationSecs:1.0f In:self.view];
+    if (DEBUG) {
+        NSLog(@"_canvasWindow's zoomscale (before): %.2f",[_canvasWindow zoomScale]);
+    }
+    [_canvasWindow setZoomScale:1];
+    if (DEBUG) {
+        NSLog(@"_canvasWindow's zoomscale (after): %.2f",[_canvasWindow zoomScale]);
+    }
 }
 
 
