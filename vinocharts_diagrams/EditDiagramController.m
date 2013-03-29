@@ -194,7 +194,7 @@ static NSString *borderType = @"borderType";
         
         // Prepare alignment lines.
         ((Note*)((UITextView*)recognizer.view).delegate).alignmentLines = [[AlignmentLineView alloc]initToDemarcateFrame:((UITextView*)recognizer.view).frame
-                                                                                                                      In:_canvas.frame
+                                                                                                                      In:_canvas.bounds
                                                                                                                LineColor:[ViewHelper invColorOf:_canvas.backgroundColor]];
         // Show the alignment lines.
         [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).alignmentLines];
