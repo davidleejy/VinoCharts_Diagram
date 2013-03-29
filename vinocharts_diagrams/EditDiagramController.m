@@ -207,14 +207,19 @@ static NSString *borderType = @"borderType";
         
         if (_snapToGridEnabled) {
             double step = _grid.step; //Find out the stepping involved.
-            //Perform snap rounding algo.
-            double unsnappedX = ((Note*)((UITextView*)recognizer.view).delegate).body.pos.x;
-            double unsnappedY = ((Note*)((UITextView*)recognizer.view).delegate).body.pos.y;
-            double snappedX = ((int)(unsnappedX/step))*step;
-            double snappedY = ((int)(unsnappedY/step))*step;
+            //Perform snap rounding algo. This algo focuses on snapping the origin of the note.
+            //The origin of the note refers to the top left hand corner of the note.
+            double unsnappedXcenter = ((Note*)((UITextView*)recognizer.view).delegate).body.pos.x;
+            double unsnappedYcenter = ((Note*)((UITextView*)recognizer.view).delegate).body.pos.y;
+            double unsnappedXorigin = unsnappedXcenter - ((UITextView*)recognizer.view).bounds.size.width/2.0;
+            double unsnappedYorigin = unsnappedYcenter - ((UITextView*)recognizer.view).bounds.size.height/2.0;
+            double snappedXorigin = ((int)(unsnappedXorigin/step))*step;
+            double snappedYorigin = ((int)(unsnappedYorigin/step))*step;
+            double snappedXcenter = snappedXorigin + ((UITextView*)recognizer.view).bounds.size.width/2.0;
+            double snappedYcenter = snappedYorigin + ((UITextView*)recognizer.view).bounds.size.height/2.0;
             //Apply new coordinates ONLY to body
-            ((Note*)((UITextView*)recognizer.view).delegate).body.pos = cpv(snappedX,
-                                                                            snappedY);
+            ((Note*)((UITextView*)recognizer.view).delegate).body.pos = cpv(snappedXcenter,
+                                                                            snappedYcenter);
             [((Note*)((UITextView*)recognizer.view).delegate) hideFrameOriginIndicator]; //hide indicator
             [_gridSnappingButton setEnabled:YES]; //re-enable grid snapping button.
         }
