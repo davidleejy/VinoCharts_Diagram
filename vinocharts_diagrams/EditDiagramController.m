@@ -19,6 +19,7 @@
 
 #import "Constants.h"
 #import "ViewHelper.h"
+#import "DebugHelper.h"
 
 
 // An object to use as a collision type for the screen border.
@@ -71,15 +72,21 @@ static NSString *borderType = @"borderType";
                                                       _requestedCanvasWidth,
                                                       _requestedCanvasHeight)];
     
-    [_canvasWindow setContentSize:_canvas.frame.size];
-    [_canvasWindow setContentInset:UIEdgeInsetsMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
-                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET,
-                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET,
-                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET)];
+//    [_canvasWindow setContentSize:_canvas.frame.size];
+//    [_canvasWindow setContentInset:UIEdgeInsetsMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
+//                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET,
+//                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET,
+//                                                    EASEL_BORDER_CANVAS_BORDER_OFFSET)];
     
-    [_canvas setBackgroundColor:[UIColor whiteColor]];
+    [_canvas setBackgroundColor:[UIColor blackColor]];
     [_canvasWindow addSubview:_canvas];
     
+    // Center content view in _canvasWindow
+    // The following 3 lines are necessary to kickstart the centering.
+    [_canvasWindow setZoomScale:0.98 animated:NO];
+    [_canvasWindow setZoomScale:1 animated:YES];
+     _canvas.frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:_canvasWindow
+                                                           AndWithContentView:_canvas];
     
     // Initialise states
     _editingANote = NO;
@@ -208,8 +215,8 @@ static NSString *borderType = @"borderType";
                                                                                                                        ((UITextView*)recognizer.view).frame.origin.y,
                                                                                                                        ((UITextView*)recognizer.view).bounds.size.width,
                                                                                                                        ((UITextView*)recognizer.view).bounds.size.height)];
-            [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setBackgroundColor:((UITextView*)recognizer.view).backgroundColor]; //set color of foreshadow.
-            [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setAlpha:0.2]; //set alpha of foreshadow.
+            [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setBackgroundColor:[ViewHelper invColorOf:[_canvas backgroundColor]]]; //set color of foreshadow.
+            [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setAlpha:0.3]; //set alpha of foreshadow.
             //Show foreshadow.
             [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).foreShadow];
         }
@@ -322,7 +329,7 @@ static NSString *borderType = @"borderType";
     }
 }
 
-// =============== Toolbar buttons ===============
+// =============== Main screen toolbar buttons ===============
 
 - (IBAction)addNewNoteButton:(id)sender {
     
@@ -341,6 +348,7 @@ static NSString *borderType = @"borderType";
     Note *newN = [[Note alloc]initWithText:@"new"];
     
     // Determine coordinates of new note
+    
     CGPoint centerOfNewNote = [_canvas convertPoint:CGPointMake(_canvasWindow.contentOffset.x+_canvasWindow.center.x, _canvasWindow.contentOffset.y+_canvasWindow.center.y) fromView:_canvasWindow];
     newN.body.pos = centerOfNewNote; // Give coordinates to body ONLY.
     newN.textView.backgroundColor = [UIColor brownColor]; //Give color
@@ -381,11 +389,70 @@ static NSString *borderType = @"borderType";
         _snapToGridEnabled = NO; //toggle.
     }
     else {
-        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[UIColor blackColor]];
+        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[ViewHelper invColorOf:[_canvas backgroundColor]]];
         [_canvas addSubview:_grid]; //Show.
         [_canvas sendSubviewToBack:_grid]; //Don't block notes.
         _snapToGridEnabled = YES; //Toggle.
     }
+}
+
+- (IBAction)minimapButton:(id)sender {
+    
+    //one delta time stepping of the minimap.
+    
+    [DebugHelper printCGRect:_canvas.bounds :@"canvas bounds"];
+    
+    //remove old shit
+    if ([_minimap isDescendantOfView:self.view]) {
+        [_minimap removeFromSuperview];
+        NSLog(@"aegfse");
+    }
+    if ([_minimap2 isDescendantOfView:self.view]) {
+        [_minimap2 removeFromSuperview];
+        NSLog(@"aegfse2");
+    }
+    
+    //minimap 1 is add everything then transform and shift.
+    
+    _minimap = [[UIView alloc]initWithFrame:_canvas.bounds];
+    [_minimap setBackgroundColor:[UIColor blackColor]];
+    for (int i = 0; i < _notesArray.count; i++) {
+        Note *newN = [[Note alloc]initWithText:@"t"];
+        newN.textView.frame = ((Note*)[_notesArray objectAtIndex:i]).textView.frame;
+        [_minimap addSubview:newN.textView];
+    }
+    _minimap.transform = CGAffineTransformScale(_minimap.transform, 0.3, 0.3);
+    [DebugHelper printCGRect:_minimap.bounds :@"minimap bounds"];
+    [DebugHelper printCGRect:_minimap.frame :@"minimap frame"];
+    
+    _minimap.frame = CGRectMake(20, 0, _minimap.frame.size.width, _minimap.frame.size.height);
+    [DebugHelper printCGRect:_minimap.frame :@"minimap frame"];
+    [self.view addSubview:_minimap];
+    
+    
+    // trying to make minmap and minimap2 similar.
+    
+    //minimap 2 is transform, then add.
+    
+    _minimap2 = [[UIView alloc]initWithFrame:_canvas.bounds];
+    [_minimap2 setBackgroundColor:[UIColor blackColor]];
+    _minimap2.transform = CGAffineTransformScale(_minimap2.transform, 0.3, 0.3);
+    [DebugHelper printCGRect:_minimap2.bounds :@"minimap2 bounds"];
+    [DebugHelper printCGRect:_minimap2.frame :@"minimap2 frame"];
+    _minimap2.frame = CGRectMake(400, 0, _minimap2.frame.size.width, _minimap2.frame.size.height);
+    [DebugHelper printCGRect:_minimap2.frame :@"minimap2 frame aft"];
+//    _minimap2.transform = CGAffineTransformIdentity;
+    [self.view addSubview:_minimap2];
+    for (int i = 0; i < _notesArray.count; i++) {
+        Note *newN = [[Note alloc]initWithText:@"t"];
+        newN.textView.frame = ((Note*)[_notesArray objectAtIndex:i]).textView.frame;
+//        newN.textView.transform = CGAffineTransformScale(newN.textView.transform, 0.3, 0.3);
+        [_minimap2 addSubview:newN.textView];
+        
+    }
+//    minimap2.transform = CGAffineTransformScale(minimap.transform, 0.3, 0.3);
+//    minimap2.frame = CGRectMake(400, 0, minimap.frame.size.width, minimap.frame.size.height);
+//    [self.view addSubview:minimap2];
 }
 
 
@@ -493,6 +560,26 @@ static NSString *borderType = @"borderType";
     return _canvas;
 }
 
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView
+{
+    if (DEBUG)
+        [DebugHelper printUIScrollView:scrollView :@"scrollview didZoom"];
+    
+    // Center content view during zooming.
+    ((UIView*)[scrollView.subviews objectAtIndex:0]).frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:scrollView AndWithContentView: ((UIView*)[scrollView.subviews objectAtIndex:0])];
+}
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (DEBUG){
+        [DebugHelper printUIScrollView:scrollView :@"scrollview didScroll"];
+        NSLog(@"canvas didScroll %@",_canvas);
+    }
+}
+
+-(void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale{
+    // Center content view during zooming.
+    ((UIView*)[scrollView.subviews objectAtIndex:0]).frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:scrollView AndWithContentView: ((UIView*)[scrollView.subviews objectAtIndex:0])];
+}
 
 // =============== DON'T CARE BELOW THIS LINE ===============
 

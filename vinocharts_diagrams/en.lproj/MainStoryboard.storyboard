@@ -99,14 +99,14 @@
                                 <rect key="frame" x="0.0" y="704" width="1024" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
-                                    <barButtonItem title="+ note" id="q6J-u6-7DZ">
-                                        <connections>
-                                            <action selector="addNewNoteButton:" destination="wsB-aS-e8D" id="ddh-4q-V9Y"/>
-                                        </connections>
-                                    </barButtonItem>
                                     <barButtonItem title="Back" id="eUA-JY-Fyj">
                                         <connections>
                                             <action selector="backButton:" destination="wsB-aS-e8D" id="hDb-Su-uzF"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="+ Note" id="q6J-u6-7DZ">
+                                        <connections>
+                                            <action selector="addNewNoteButton:" destination="wsB-aS-e8D" id="ddh-4q-V9Y"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem title="Reset Zoom" id="85m-K1-Ha9">
@@ -124,6 +124,11 @@
                                     <barButtonItem title="Grid Snapping" id="RKK-W1-NAt">
                                         <connections>
                                             <action selector="gridSnappingButton:" destination="wsB-aS-e8D" id="Yhl-m3-EfX"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem title="Minimap" id="aPH-O1-Pwy">
+                                        <connections>
+                                            <action selector="minimapButton:" destination="wsB-aS-e8D" id="miv-dO-Vel"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>

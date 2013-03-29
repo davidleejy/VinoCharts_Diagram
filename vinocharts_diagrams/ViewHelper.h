@@ -38,5 +38,6 @@
 // EFFECTS: Returns the inverted color of aColor.
 //          For e.g., white is the inverse of black.
 
++(CGRect)centeredFrameForScrollViewWithNoContentInset:(UIScrollView *)sV AndWithContentView:(UIView *)cV;
 
 @end

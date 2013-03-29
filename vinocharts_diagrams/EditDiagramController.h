@@ -25,6 +25,7 @@
 - (IBAction)backButton:(id)sender;
 - (IBAction)resetZoomButton:(id)sender;
 - (IBAction)gridSnappingButton:(id)sender;
+- (IBAction)minimapButton:(id)sender;
 
 /*States*/
 @property (readwrite) BOOL editingANote;
@@ -61,7 +62,10 @@
 // Grid
 @property (readwrite) GridView *grid;
 
-
+// Minimap
+//TODO
+@property (readwrite) UIView *minimap;
+@property (readwrite) UIView *minimap2;
 
 /*Gesture Recognizer Methods*/
 
