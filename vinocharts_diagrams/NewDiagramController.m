@@ -8,6 +8,9 @@
 
 #import "NewDiagramController.h"
 #import "EditDiagramController.h"
+#import <QuartzCore/QuartzCore.h>
+#import <CoreGraphics/CoreGraphics.h>
+#import "GridView.h"
 
 @implementation NewDiagramController
 
@@ -16,10 +19,23 @@
 {
     [super viewDidLoad]; // Do any additional setup after loading the view.
     
-    _height = 10; _width = 200;
+    _height = 1000; _width = 2000;
     _heightOutput.text = [NSString stringWithFormat:@"%.2f",_height];
     _widthOutput.text = [NSString stringWithFormat:@"%.2f",_width];
     
+//    //TODO
+//    UIGraphicsBeginImageContextWithOptions(newImageSize, YES, 0);
+//
+//    CGContextRef context = UIGraphicsGetCurrentContext();
+//    CGContextSetStrokeColorWithColor(context, [UIColor blackColor].CGColor);
+//    CGContextSetLineWidth(context, 1.0f);
+//    CGContextMoveToPoint(context, 10, 10);
+//    CGContextAddLineToPoint(context, 100, 50);
+//    CGContextStrokePath(context);
+    
+    _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, 400, 400) Step:10 LineColor:[UIColor redColor]  ];
+    [self.view addSubview:_grid];
+    [_grid setNeedsDisplay];
 }
 
 

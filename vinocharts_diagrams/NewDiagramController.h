@@ -7,12 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+@class GridView;
 
 @interface NewDiagramController : UIViewController
 
 /*properties*/
 @property (readwrite) double height;
 @property (readwrite) double width;
+@property (readwrite) GridView *grid;
 
 /*Actions*/
 - (IBAction)createCanvasButton:(id)sender; //NOT CONNECTED. OLD. USING SEGUE NOW.
