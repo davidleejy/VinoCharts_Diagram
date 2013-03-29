@@ -83,10 +83,16 @@ static NSString *borderType = @"borderType";
     
     // Center content view in _canvasWindow
     // The following 3 lines are necessary to kickstart the centering.
+//    [_canvasWindow setZoomScale:0.98 animated:NO];
+//    [_canvasWindow setZoomScale:1 animated:YES];
+//     _canvas.frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:_canvasWindow
+//                                                           AndWithContentView:_canvas];
+    [DebugHelper printUIScrollView:_canvasWindow :@"load cW"];
+    //content size is 0,0
     [_canvasWindow setZoomScale:0.98 animated:NO];
     [_canvasWindow setZoomScale:1 animated:YES];
-     _canvas.frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:_canvasWindow
-                                                           AndWithContentView:_canvas];
+    //content size takes on _canvas.bounds
+    [DebugHelper printUIScrollView:_canvasWindow :@"load cW2"];
     
     // Initialise states
     _editingANote = NO;
@@ -96,8 +102,18 @@ static NSString *borderType = @"borderType";
     // Initialise _space (Chipmunk physics space)
     _space = [[ChipmunkSpace alloc] init];
     [_space addBounds:_canvas.bounds
-            thickness:100000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
+            thickness:100000.0f elasticity:0.2f friction:0.8 layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
     [_space setGravity:cpv(0, 0)];
+    
+    // Initialising Collision Handlers
+    [_space addCollisionHandler:self
+                         typeA:[Note class] typeB:borderType
+                         begin:@selector(beginCollision:space:)
+                      preSolve:nil
+                     postSolve:nil
+                      separate:nil
+     ];
+
     
     // Initialise gridView
         //gridView is initialised by pressing the snap to grid button.
@@ -118,6 +134,9 @@ static NSString *borderType = @"borderType";
 //    [a addTo:_canvas];
     
 }
+
+
+
 
 // =============== Segues ==================
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
@@ -520,6 +539,7 @@ static NSString *borderType = @"borderType";
 
 // =============== Chipmunk Physics Engine Stuff ===============
 
+
 // When the view appears on the screen, start the animation timer and tilt callbacks.
 - (void)viewDidAppear:(BOOL)animated {
 	// Set up the display link to control the timing of the animation.
@@ -545,6 +565,14 @@ static NSString *borderType = @"borderType";
     for (int i = 0; i<_notesArray.count; i++) {
         [[_notesArray objectAtIndex:i]updatePos];
     }
+}
+
+
+
+- (bool)beginCollision:(cpArbiter*)arbiter space:(ChipmunkSpace*)space {
+	CHIPMUNK_ARBITER_GET_SHAPES(arbiter, noteShape, border);
+    ((Note*)(noteShape.data)).body.angle = 0.2; // Hack to get notes that are parallel to wall to bounce off walls.
+	return TRUE;
 }
 
 
@@ -580,6 +608,7 @@ static NSString *borderType = @"borderType";
     // Center content view during zooming.
     ((UIView*)[scrollView.subviews objectAtIndex:0]).frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:scrollView AndWithContentView: ((UIView*)[scrollView.subviews objectAtIndex:0])];
 }
+
 
 // =============== DON'T CARE BELOW THIS LINE ===============
 

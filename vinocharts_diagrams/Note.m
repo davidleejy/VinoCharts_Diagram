@@ -96,6 +96,7 @@
 		// and you can attach joints between rigid bodies to connect them together.
 		_body = [[ChipmunkBody alloc] initWithMass:mass andMoment:moment];
 		_body.pos = cpv(0, 0);
+        
 
         
 		// Chipmunk supports a number of collision shape types. See the documentation for more information.
@@ -104,9 +105,9 @@
 		ChipmunkShape *shape = [ChipmunkPolyShape boxWithBody:_body width:NOTE_DEFAULT_WIDTH height:NOTE_DEFAULT_HEIGHT];
 		
 		// The elasticity of a shape controls how bouncy it is.
-		shape.elasticity = 0.0f;
+		shape.elasticity = 1.0f;
 		// The friction propertry should be self explanatory. Friction values go from 0 and up- they can be higher than 1f.
-		shape.friction = 1.0f;
+		shape.friction = 0.2f;
 		
 		// Set the collision type to a unique value (the class object works well)
 		// This type is used as a key later when setting up callbacks.
