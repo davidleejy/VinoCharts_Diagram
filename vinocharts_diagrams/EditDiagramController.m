@@ -38,17 +38,24 @@ static NSString *borderType = @"borderType";
     CGSize easelSize = CGSizeMake(_requestedCanvasWidth+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0, _requestedCanvasHeight+EASEL_BORDER_CANVAS_BORDER_OFFSET*2.0);
     [_canvasWindow setContentSize:easelSize];
     [_canvasWindow setBackgroundColor:[UIColor grayColor]];
-    // Zoom
+    // Zooming
     [_canvasWindow setDelegate:self];
-    [_canvasWindow setMaximumZoomScale:4.0];
-    [_canvasWindow setMinimumZoomScale:0.01];
+    [_canvasWindow setMaximumZoomScale:2.0];
+    [_canvasWindow setMinimumZoomScale:0.1];
     [_canvasWindow setClipsToBounds:YES];
     //Memorise original canvasWindow height.
     _canvasWindowOrigHeight = _canvasWindow.frame.size.height;
     
     // Initialise _canvas
     _canvas = [[UIView alloc]initWithFrame:CGRectMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
-                                                     EASEL_BORDER_CANVAS_BORDER_OFFSET, _requestedCanvasWidth, _requestedCanvasHeight)];
+                                                     EASEL_BORDER_CANVAS_BORDER_OFFSET,
+                                                      _requestedCanvasWidth,
+                                                      _requestedCanvasHeight)];
+//    _canvas = [[UIImageView alloc]initWithFrame:CGRectMake(0,
+//                                                           0,
+//                                                           _requestedCanvasWidth,
+//                                                           _requestedCanvasHeight)];
+    
     [_canvas setBackgroundColor:[UIColor whiteColor]];
     [_canvasWindow addSubview:_canvas];
     
@@ -60,7 +67,7 @@ static NSString *borderType = @"borderType";
     // Initialise _space (Chipmunk physics space)
     _space = [[ChipmunkSpace alloc] init];
     [_space addBounds:_canvas.bounds
-            thickness:1000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
+            thickness:100000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
     [_space setGravity:cpv(0, 0)];
     
     // Attach gesture recognizers
@@ -77,6 +84,8 @@ static NSString *borderType = @"borderType";
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         _canvasWindow.scrollEnabled = NO; //Disable scrolling
         [_space remove:((Note*)((UITextView*)recognizer.view).delegate)]; //Remove note from space
+        ((UITextView*)recognizer.view).alpha = 0.5; //Dim note's appearance.
+        [_canvas bringSubviewToFront:((UITextView*)recognizer.view)]; //Give illusion of lifting note up from canvas.
     }
     
     cpVect origBodyPos = ((Note*)((UITextView*)recognizer.view).delegate).body.pos;
@@ -92,6 +101,7 @@ static NSString *borderType = @"borderType";
 	if(recognizer.state == UIGestureRecognizerStateEnded) {
         _canvasWindow.scrollEnabled = YES; //enable scrolling
         [_space add:((Note*)((UITextView*)recognizer.view).delegate)]; //Re-add note into space
+        ((UITextView*)recognizer.view).alpha = 1; //Un-dim note's appearance.
     }
 }
 
@@ -131,6 +141,18 @@ static NSString *borderType = @"borderType";
 // =============== Toolbar buttons ===============
 
 - (IBAction)addNewNoteButton:(id)sender {
+    
+    // Keeop number of notes under limit.
+    if (_notesArray.count > CANVAS_NOTE_COUNT_LIM) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"Cannot exceed %d notes on one diagram.",CANVAS_NOTE_COUNT_LIM]
+                                                       message:nil
+                                                      delegate:self
+                                             cancelButtonTitle:nil
+                                             otherButtonTitles:nil];
+        [alert show];
+        [alert performSelector:@selector(dismissAnimated:) withObject:(BOOL)NO afterDelay:0.0f];
+        return; //terminate adding new note
+    }
     
     Note *newN = [[Note alloc]initWithText:@"new"];
     

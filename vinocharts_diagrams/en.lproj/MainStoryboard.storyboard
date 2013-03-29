@@ -189,6 +189,42 @@
             <point key="canvasLocation" x="-1753" y="1371"/>
         </scene>
     </scenes>
+    <classes>
+        <class className="EditDiagramController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/EditDiagramController.h"/>
+            <relationships>
+                <relationship kind="action" name="addNewNoteButton:"/>
+                <relationship kind="action" name="backButton:"/>
+                <relationship kind="action" name="boldText:"/>
+                <relationship kind="action" name="changeFont:"/>
+                <relationship kind="action" name="changeNoteColor:"/>
+                <relationship kind="action" name="changeTextColor:"/>
+                <relationship kind="action" name="deleteNote:"/>
+                <relationship kind="action" name="italicizeText:"/>
+                <relationship kind="action" name="resetZoomButton:"/>
+                <relationship kind="action" name="underlineText:"/>
+                <relationship kind="outlet" name="canvasWindow" candidateClass="UIScrollView"/>
+            </relationships>
+        </class>
+        <class className="NewDiagramController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NewDiagramController.h"/>
+            <relationships>
+                <relationship kind="action" name="createCanvasButton:"/>
+                <relationship kind="outlet" name="heightOutput" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="widthOutput" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="TestViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TestViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="forceEdit:"/>
+                <relationship kind="action" name="gravityOff:"/>
+                <relationship kind="action" name="gravityOn:"/>
+                <relationship kind="action" name="newNoteButton:"/>
+                <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackTranslucent"/>
         <simulatedOrientationMetrics key="orientation"/>
