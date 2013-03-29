@@ -10,12 +10,33 @@
 
 @interface AlignmentLineView : UIView
 
-@property (readonly) UIColor *lineColor;
-@property (readonly) CGRect demarcatedFrame;
-@property (readonly) CGRect universe;
+@property (readwrite) UIColor *lineColor;
+@property (readwrite) double thickness;
+@property (readwrite) CGRect demarcatedFrame;
+@property (readwrite) CGRect universe;
+@property (readonly) UIView *tL; //top line
+@property (readonly) UIView *bL; //bottom line
+@property (readonly) UIView *lL; //left line
+@property (readonly) UIView *rL; //right line
 
-- (id)initToDemarcateFrame:(CGRect)demarcFrame In:(CGRect)universe LineColor:(UIColor*)lcolor;
+//4 lines demarcate the demarcatedFrame.
+// Lines are:
+//          Top Line
+//         ______
+//    Left|  Obj |Right
+//    Line|______|Line
+//          Btm Line
+//
+// Note that these lines stretch all the way out to the edge of the superview of the Obj.
+
+- (id)initToDemarcateFrame:(CGRect)demarcFrame In:(CGRect)universe LineColor:(UIColor*)lcolor Thickness:(double)thickness;
 
 - (void)redrawWithDemarcatedFrame:(CGRect)demarcFrame;
+
+- (void)addTo:(UIView*)v;
+
+- (void)addToBottommostOf:(UIView*)v;
+
+- (void)removeLines;
 
 @end

@@ -100,14 +100,15 @@ static NSString *borderType = @"borderType";
     [_canvasWindow addGestureRecognizer:singleTapRecog];
     
     //TODO remove. testing.
-//    UIView* x = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 500, 500)];
+//    UIView* x = [[UIView alloc]initWithFrame:CGRectMake(10, 10, 500,500)];
 //    [x setBackgroundColor:[UIColor blackColor]];
 //    [_canvas addSubview:x];
 //    [ViewHelper embedMark:CGPointMake(15, 15) WithColor:[ViewHelper invColorOf:[UIColor blackColor]] DurationSecs:0 In:_canvas];
 //    [ViewHelper embedMark:CGPointMake(30, 30) WithColor:[ViewHelper invColorOf:[UIColor brownColor]] DurationSecs:0 In:_canvas];
 //    [ViewHelper embedMark:CGPointMake(45, 45) WithColor:[ViewHelper invColorOf:[UIColor greenColor]] DurationSecs:0 In:_canvas];
 //    [ViewHelper embedMark:CGPointMake(60, 60) WithColor:[ViewHelper invColorOf:[UIColor blueColor]] DurationSecs:0 In:_canvas];
-    
+//    AlignmentLineView *a = [[AlignmentLineView alloc]initToDemarcateFrame:CGRectMake(15, 15, 50, 50) In:_canvas.bounds LineColor:[UIColor purpleColor] Thickness:1];
+//    [a addTo:_canvas];
     
 }
 
@@ -193,13 +194,11 @@ static NSString *borderType = @"borderType";
         [_canvas bringSubviewToFront:((UITextView*)recognizer.view)]; //Give illusion of lifting note up from canvas.
         
         // Prepare alignment lines.
-        ((Note*)((UITextView*)recognizer.view).delegate).alignmentLines = [[AlignmentLineView alloc]initToDemarcateFrame:((UITextView*)recognizer.view).frame
-                                                                                                                      In:_canvas.bounds
-                                                                                                               LineColor:[ViewHelper invColorOf:_canvas.backgroundColor]];
-        // Show the alignment lines.
-        [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).alignmentLines];
-        // Move the alignment lines to the back.
-        [_canvas sendSubviewToBack:((Note*)((UITextView*)recognizer.view).delegate).alignmentLines];
+        ((Note*)((UITextView*)recognizer.view).delegate).alignmentLines = [[AlignmentLineView alloc]initToDemarcateFrame:((UITextView*)recognizer.view).frame In:_canvas.bounds LineColor:[ViewHelper invColorOf:_canvas.backgroundColor] Thickness:2];
+
+//        // Show the alignment lines.
+        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines addToBottommostOf:_canvas];
+//        [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).alignmentLines];
         
         if (_snapToGridEnabled){
             [((Note*)((UITextView*)recognizer.view).delegate) showFrameOriginIndicator]; //show indicator
@@ -247,11 +246,11 @@ static NSString *borderType = @"borderType";
     }
     else{
         //Without snap to grid, alignment lines redraw to demarcate note itself.
-        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines redrawWithDemarcatedFrame:
-         CGRectMake(((Note*)((UITextView*)recognizer.view).delegate).body.pos.x - ((UITextView*)recognizer.view).frame.size.width/2.0,
-                    ((Note*)((UITextView*)recognizer.view).delegate).body.pos.y - ((UITextView*)recognizer.view).frame.size.height/2.0,
-                    ((UITextView*)recognizer.view).frame.size.width,
-                    ((UITextView*)recognizer.view).frame.size.height)];
+        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines
+         redrawWithDemarcatedFrame:CGRectMake(((Note*)((UITextView*)recognizer.view).delegate).body.pos.x - ((UITextView*)recognizer.view).frame.size.width/2.0,
+                                              ((Note*)((UITextView*)recognizer.view).delegate).body.pos.y - ((UITextView*)recognizer.view).frame.size.height/2.0,
+                                              ((UITextView*)recognizer.view).frame.size.width,
+                                              ((UITextView*)recognizer.view).frame.size.height)];
     }
     
     
@@ -283,7 +282,7 @@ static NSString *borderType = @"borderType";
             [((Note*)((UITextView*)recognizer.view).delegate).foreShadow removeFromSuperview];
         }
         
-        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines removeFromSuperview]; // Hide alignment lines.
+        [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines removeLines]; // Hide alignment lines.
         _canvasWindow.scrollEnabled = YES; //enable scrolling
         [_space add:((Note*)((UITextView*)recognizer.view).delegate)]; //Re-add note into space
         ((UITextView*)recognizer.view).alpha = 1; //Un-dim note's appearance.
