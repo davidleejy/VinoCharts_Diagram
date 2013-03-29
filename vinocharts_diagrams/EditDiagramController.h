@@ -11,6 +11,7 @@
 #import <quartzcore/CADisplayLink.h>
 #import "Note.h"
 #import "CanvasSettingController.h"
+#import "GridView.h"
 
 @interface EditDiagramController : UIViewController <UIScrollViewDelegate, UIPopoverControllerDelegate, CanvasSettingControllerDelegate>
 
@@ -21,10 +22,15 @@
 - (IBAction)addNewNoteButton:(id)sender;
 - (IBAction)backButton:(id)sender;
 - (IBAction)resetZoomButton:(id)sender;
+- (IBAction)gridSnappingButton:(id)sender;
 
 /*States*/
 @property (readwrite) BOOL editingANote;
 @property (readwrite) Note *noteBeingEdited;
+@property (readwrite) BOOL snapToGridEnabled;
+
+
+
 
 /*Properties*/
 @property (readwrite) CADisplayLink *displayLink;
@@ -49,6 +55,10 @@
 // Actual width and height of canvas. Not affected by zooming of _canvasWindow.  _canvasWindow will affect the width and height of _canvas (a UIView* that is attached to a UIScrollView*, _canvasWindow.)
 @property (readwrite) double actualCanvasWidth;
 @property (readwrite) double actualCanvasHeight;
+
+// Grid
+@property (readwrite) GridView *grid;
+
 
 
 /*Gesture Recognizer Methods*/

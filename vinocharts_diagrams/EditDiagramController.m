@@ -14,6 +14,8 @@
 
 #import "CanvasSettingController.h"
 
+#import "GridView.h"
+
 #import "Constants.h"
 #import "ViewHelper.h"
 
@@ -81,12 +83,16 @@ static NSString *borderType = @"borderType";
     // Initialise states
     _editingANote = NO;
     _noteBeingEdited = nil;
+    _snapToGridEnabled = NO;
     
     // Initialise _space (Chipmunk physics space)
     _space = [[ChipmunkSpace alloc] init];
     [_space addBounds:_canvas.bounds
             thickness:100000.0f elasticity:0.0f friction:1.0f layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
     [_space setGravity:cpv(0, 0)];
+    
+    // Initialise gridView
+        //gridView is initialised by pressing the snap to grid button.
     
     // Attach gesture recognizers
     UITapGestureRecognizer *singleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapResponse:)];
@@ -115,6 +121,14 @@ static NSString *borderType = @"borderType";
 // CanvasSettingControllerDelegate callback function
 - (void)CanvasSettingControllerDelegateOkButton:(double)newWidth :(double)newHeight{
     
+    // Display alert.
+    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"Canvas settings successfully changed.\nWidth:%.2f Height:%.2f",newWidth,newHeight]
+                                                   message:nil
+                                                  delegate:self
+                                         cancelButtonTitle:@"OK"
+                                         otherButtonTitles:nil];
+    [alert show];
+    
     // Update actual canvas height and width.
     _actualCanvasHeight = newHeight;
     _actualCanvasWidth = newWidth;
@@ -142,13 +156,11 @@ static NSString *borderType = @"borderType";
         [_space add:[ _notesArray objectAtIndex:i]];
     }
     
-    // Display alert.
-    UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"Canvas settings successfully changed.\nWidth:%.2f Height:%.2f",newWidth,newHeight]
-                                                   message:nil
-                                                  delegate:self
-                                         cancelButtonTitle:@"OK"
-                                         otherButtonTitles:nil];
-    [alert show];
+    // Redraw grid
+    if (_snapToGridEnabled) {
+        [self gridSnappingButton:nil];
+        [self gridSnappingButton:nil];
+    }
     
     [[_currentPopoverSegue popoverController] dismissPopoverAnimated: YES]; // dismiss the popover.
 }
@@ -272,6 +284,20 @@ static NSString *borderType = @"borderType";
     }
 }
 
+- (IBAction)gridSnappingButton:(id)sender {
+    // Toggles snapping to grid feature.
+    if (_snapToGridEnabled) {
+        [_grid removeFromSuperview]; //hide.
+        _snapToGridEnabled = NO; //toggle.
+    }
+    else {
+        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:10 LineColor:[UIColor greenColor]];
+        [_canvas addSubview:_grid]; //Show.
+        [_canvas sendSubviewToBack:_grid]; //Don't block notes.
+        _snapToGridEnabled = YES; //Toggle.
+    }
+}
+
 
 // =============== Edit Note Tool Bar ===============
 -(void)createEditNoteToolBar{
@@ -374,6 +400,7 @@ static NSString *borderType = @"borderType";
 
 // =============== UIScrollView delegate method ===============
 -(UIView*)viewForZoomingInScrollView:(UIScrollView *)scrollView{
+    NSLog(@"seag");
     return _canvas;
 }
 

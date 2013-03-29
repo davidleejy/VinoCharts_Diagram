@@ -44,7 +44,7 @@
     //Begin drawing grid lines
     
     CGContextSetStrokeColor(contextRef, CGColorGetComponents(_lineColor.CGColor)); //Set color of grid lines.
-    CGContextSetLineWidth(contextRef, 1.0); // Set width of grid lines.
+    CGContextSetLineWidth(contextRef, 0.25); // Set spacing in between grid lines.
     
     //draw vertical lines.
     for (int i = 0; i < self.bounds.size.width; i+=_step) {
