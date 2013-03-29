@@ -13,6 +13,7 @@
 
 @property (readwrite) UITextView *textView;
 @property (readwrite) UIImageView *editView;
+@property (readwrite) UIImageView *frameOriginIndicator;
 @property (readwrite) ChipmunkBody *body;
 @property (readwrite) NSArray *chipmunkObjects;
 
@@ -28,6 +29,8 @@
 //REQUIRES: parameter t has at most 140 characters.
 //EFFECTS: ctor
 
+-(void)showFrameOriginIndicator;
+-(void)hideFrameOriginIndicator;
 
 
 @end

@@ -135,6 +135,7 @@
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     <connections>
                         <outlet property="canvasWindow" destination="ztF-hn-9Dc" id="dMU-hc-CJu"/>
+                        <outlet property="gridSnappingButton" destination="RKK-W1-NAt" id="bW3-h1-OTv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EUE-4B-8wT" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -278,52 +279,6 @@
             <point key="canvasLocation" x="-4233" y="1527"/>
         </scene>
     </scenes>
-    <classes>
-        <class className="CanvasSettingController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/CanvasSettingController.h"/>
-            <relationships>
-                <relationship kind="action" name="cancelButton:"/>
-                <relationship kind="action" name="okButton:"/>
-                <relationship kind="outlet" name="heightDisplay" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="widthDisplay" candidateClass="UITextField"/>
-            </relationships>
-        </class>
-        <class className="EditDiagramController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/EditDiagramController.h"/>
-            <relationships>
-                <relationship kind="action" name="addNewNoteButton:"/>
-                <relationship kind="action" name="backButton:"/>
-                <relationship kind="action" name="boldText:"/>
-                <relationship kind="action" name="changeFont:"/>
-                <relationship kind="action" name="changeNoteColor:"/>
-                <relationship kind="action" name="changeTextColor:"/>
-                <relationship kind="action" name="deleteNote:"/>
-                <relationship kind="action" name="gridSnappingButton:"/>
-                <relationship kind="action" name="italicizeText:"/>
-                <relationship kind="action" name="resetZoomButton:"/>
-                <relationship kind="action" name="underlineText:"/>
-                <relationship kind="outlet" name="canvasWindow" candidateClass="UIScrollView"/>
-            </relationships>
-        </class>
-        <class className="NewDiagramController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/NewDiagramController.h"/>
-            <relationships>
-                <relationship kind="action" name="createCanvasButton:"/>
-                <relationship kind="outlet" name="heightOutput" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="widthOutput" candidateClass="UILabel"/>
-            </relationships>
-        </class>
-        <class className="TestViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/TestViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="forceEdit:"/>
-                <relationship kind="action" name="gravityOff:"/>
-                <relationship kind="action" name="gravityOn:"/>
-                <relationship kind="action" name="newNoteButton:"/>
-                <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
-            </relationships>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackTranslucent"/>
         <simulatedOrientationMetrics key="orientation"/>

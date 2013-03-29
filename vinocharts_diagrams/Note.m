@@ -78,6 +78,9 @@
         _editView.frame = CGRectMake(0, NOTE_DEFAULT_HEIGHT-20, 20, 20);
         [_textView addSubview:_editView];
         
+        //Initialise frameOriginIndicator
+        _frameOriginIndicator = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"red_on_top_left.jpg"]];
+        _frameOriginIndicator.frame = CGRectMake(0, 0, 20, 20);
         
 		// Set up Chipmunk objects.
 		cpFloat mass = 50;
@@ -131,6 +134,16 @@
 	
 	return self;
     
+}
+
+
+-(void)showFrameOriginIndicator{
+    [_textView addSubview:_frameOriginIndicator];
+}
+
+
+-(void)hideFrameOriginIndicator{
+    [_frameOriginIndicator removeFromSuperview];
 }
 
 

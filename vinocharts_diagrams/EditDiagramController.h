@@ -17,6 +17,8 @@
 
 /*Outlets*/
 @property (weak, nonatomic) IBOutlet UIScrollView *canvasWindow;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *gridSnappingButton;
+
 
 /*Actions*/
 - (IBAction)addNewNoteButton:(id)sender;

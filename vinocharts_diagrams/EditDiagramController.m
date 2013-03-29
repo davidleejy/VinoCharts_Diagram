@@ -180,7 +180,16 @@ static NSString *borderType = @"borderType";
         [_space remove:((Note*)((UITextView*)recognizer.view).delegate)]; //Remove note from space
         ((UITextView*)recognizer.view).alpha = 0.5; //Dim note's appearance.
         [_canvas bringSubviewToFront:((UITextView*)recognizer.view)]; //Give illusion of lifting note up from canvas.
+        
+        if (_snapToGridEnabled){
+            [((Note*)((UITextView*)recognizer.view).delegate) showFrameOriginIndicator]; //show indicator
+        }
     }
+    
+    // Gesture Recognizer is in progress...
+    
+    if (_snapToGridEnabled)
+        [_gridSnappingButton setEnabled:NO]; //disable grid snapping button.
     
     cpVect origBodyPos = ((Note*)((UITextView*)recognizer.view).delegate).body.pos;
     
@@ -192,7 +201,24 @@ static NSString *borderType = @"borderType";
     
     [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
     
+    
+    
 	if(recognizer.state == UIGestureRecognizerStateEnded) {
+        
+        if (_snapToGridEnabled) {
+            double step = _grid.step; //Find out the stepping involved.
+            //Perform snap rounding algo.
+            double unsnappedX = ((Note*)((UITextView*)recognizer.view).delegate).body.pos.x;
+            double unsnappedY = ((Note*)((UITextView*)recognizer.view).delegate).body.pos.y;
+            double snappedX = ((int)(unsnappedX/step))*step;
+            double snappedY = ((int)(unsnappedY/step))*step;
+            //Apply new coordinates ONLY to body
+            ((Note*)((UITextView*)recognizer.view).delegate).body.pos = cpv(snappedX,
+                                                                            snappedY);
+            [((Note*)((UITextView*)recognizer.view).delegate) hideFrameOriginIndicator]; //hide indicator
+            [_gridSnappingButton setEnabled:YES]; //re-enable grid snapping button.
+        }
+        
         _canvasWindow.scrollEnabled = YES; //enable scrolling
         [_space add:((Note*)((UITextView*)recognizer.view).delegate)]; //Re-add note into space
         ((UITextView*)recognizer.view).alpha = 1; //Un-dim note's appearance.
@@ -291,7 +317,7 @@ static NSString *borderType = @"borderType";
         _snapToGridEnabled = NO; //toggle.
     }
     else {
-        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:10 LineColor:[UIColor greenColor]];
+        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[UIColor greenColor]];
         [_canvas addSubview:_grid]; //Show.
         [_canvas sendSubviewToBack:_grid]; //Don't block notes.
         _snapToGridEnabled = YES; //Toggle.
@@ -400,7 +426,7 @@ static NSString *borderType = @"borderType";
 
 // =============== UIScrollView delegate method ===============
 -(UIView*)viewForZoomingInScrollView:(UIScrollView *)scrollView{
-    NSLog(@"seag");
+    NSLog(@"zooooooming");
     return _canvas;
 }
 
@@ -424,6 +450,7 @@ static NSString *borderType = @"borderType";
 
 - (void)viewDidUnload {
     [self setCanvasWindow:nil];
+    [self setGridSnappingButton:nil];
     [super viewDidUnload];
 }
 
