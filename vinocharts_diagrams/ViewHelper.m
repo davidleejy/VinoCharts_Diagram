@@ -54,5 +54,26 @@
 }
 
 
++(UIColor*)invColorOf:(UIColor*)aColor{
+    
+    // White and black color are special cases.
+    if ([aColor isEqual:[UIColor whiteColor]]) {
+        return [UIColor blackColor];
+    }
+    
+    if ([aColor isEqual:[UIColor blackColor]]) {
+        return [UIColor whiteColor];
+    }
+    // End of special cases.
+    
+    const CGFloat *componentColors = CGColorGetComponents(aColor.CGColor);
+    
+    UIColor *invColor = [[UIColor alloc] initWithRed:(1.0 - componentColors[0])
+                                               green:(1.0 - componentColors[1])
+                                                blue:(1.0 - componentColors[2])
+                                               alpha:componentColors[3]];
+    return invColor;
+}
+
 
 @end

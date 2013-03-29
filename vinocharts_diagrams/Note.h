@@ -14,6 +14,7 @@
 @property (readwrite) UITextView *textView;
 @property (readwrite) UIImageView *editView;
 @property (readwrite) UIImageView *frameOriginIndicator;
+@property (readwrite) UIImageView *foreShadow; //Used in snap to grid to show where note will land after snapping.
 @property (readwrite) ChipmunkBody *body;
 @property (readwrite) NSArray *chipmunkObjects;
 

@@ -34,4 +34,9 @@
 //          if you've set the duration to a non-zero value.
 
 
++(UIColor*)invColorOf:(UIColor*)aColor;
+// EFFECTS: Returns the inverted color of aColor.
+//          For e.g., white is the inverse of black.
+
+
 @end

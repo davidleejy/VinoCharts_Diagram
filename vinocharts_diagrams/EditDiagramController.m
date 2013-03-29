@@ -98,6 +98,15 @@ static NSString *borderType = @"borderType";
     UITapGestureRecognizer *singleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapResponse:)];
     [_canvasWindow addGestureRecognizer:singleTapRecog];
     
+    //TODO remove. testing.
+//    UIView* x = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 500, 500)];
+//    [x setBackgroundColor:[UIColor blackColor]];
+//    [_canvas addSubview:x];
+//    [ViewHelper embedMark:CGPointMake(15, 15) WithColor:[ViewHelper invColorOf:[UIColor blackColor]] DurationSecs:0 In:_canvas];
+//    [ViewHelper embedMark:CGPointMake(30, 30) WithColor:[ViewHelper invColorOf:[UIColor brownColor]] DurationSecs:0 In:_canvas];
+//    [ViewHelper embedMark:CGPointMake(45, 45) WithColor:[ViewHelper invColorOf:[UIColor greenColor]] DurationSecs:0 In:_canvas];
+//    [ViewHelper embedMark:CGPointMake(60, 60) WithColor:[ViewHelper invColorOf:[UIColor blueColor]] DurationSecs:0 In:_canvas];
+    
 }
 
 // =============== Segues ==================
@@ -178,19 +187,26 @@ static NSString *borderType = @"borderType";
     if (recognizer.state == UIGestureRecognizerStateBegan) {
         _canvasWindow.scrollEnabled = NO; //Disable scrolling
         [_space remove:((Note*)((UITextView*)recognizer.view).delegate)]; //Remove note from space
-        ((UITextView*)recognizer.view).alpha = 0.5; //Dim note's appearance.
+        ((UITextView*)recognizer.view).alpha = 0.7; //Dim note's appearance.
         [_canvas bringSubviewToFront:((UITextView*)recognizer.view)]; //Give illusion of lifting note up from canvas.
         
         if (_snapToGridEnabled){
             [((Note*)((UITextView*)recognizer.view).delegate) showFrameOriginIndicator]; //show indicator
+            
+            //Prepare foreshadow.
+            ((Note*)((UITextView*)recognizer.view).delegate).foreShadow = [[UIImageView alloc]initWithFrame:CGRectMake(((UITextView*)recognizer.view).frame.origin.x,
+                                                                                                                       ((UITextView*)recognizer.view).frame.origin.y,
+                                                                                                                       ((UITextView*)recognizer.view).bounds.size.width,
+                                                                                                                       ((UITextView*)recognizer.view).bounds.size.height)];
+            [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setBackgroundColor:((UITextView*)recognizer.view).backgroundColor]; //set color of foreshadow.
+            [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setAlpha:0.2]; //set alpha of foreshadow.
+            //Show foreshadow.
+            [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).foreShadow];
         }
     }
     
     // Gesture Recognizer is in progress...
-    
-    if (_snapToGridEnabled)
-        [_gridSnappingButton setEnabled:NO]; //disable grid snapping button.
-    
+        
     cpVect origBodyPos = ((Note*)((UITextView*)recognizer.view).delegate).body.pos;
     
     CGPoint translation = [recognizer translationInView:recognizer.view.superview];
@@ -198,6 +214,21 @@ static NSString *borderType = @"borderType";
     // Move only the body. Somehow the view is constantly updated by _displayLink. Wow.
     ((Note*)((UITextView*)recognizer.view).delegate).body.pos = cpv(origBodyPos.x+translation.x,
                                                                     origBodyPos.y+translation.y);
+    
+    if (_snapToGridEnabled) {
+        
+        [_gridSnappingButton setEnabled:NO]; //disable grid snapping button. Safety reasons.
+        
+        // The purpose of this block is to mark out where the note would snap to upon releasing your finger.
+        double step = _grid.step; //Find out the stepping involved.
+        // Perform rounding algo. This algo finds out where the note's frame's origin would end after releasing your finger.
+        double unsnappedX = ((UITextView*)recognizer.view).frame.origin.x;
+        double unsnappedY = ((UITextView*)recognizer.view).frame.origin.y;
+        double snappedX = ((int)(unsnappedX/step))*step;
+        double snappedY = ((int)(unsnappedY/step))*step;
+        // Move foreShadow to help user visualize where the note will rest after he releases his finger.
+        [((Note*)((UITextView*)recognizer.view).delegate).foreShadow setFrame:CGRectMake(snappedX, snappedY, ((Note*)((UITextView*)recognizer.view).delegate).foreShadow.frame.size.width, ((Note*)((UITextView*)recognizer.view).delegate).foreShadow.frame.size.height)];
+    }
     
     [recognizer setTranslation:CGPointZero inView:recognizer.view.superview];
     
@@ -222,6 +253,8 @@ static NSString *borderType = @"borderType";
                                                                             snappedYcenter);
             [((Note*)((UITextView*)recognizer.view).delegate) hideFrameOriginIndicator]; //hide indicator
             [_gridSnappingButton setEnabled:YES]; //re-enable grid snapping button.
+            //Remove foreshadow.
+            [((Note*)((UITextView*)recognizer.view).delegate).foreShadow removeFromSuperview];
         }
         
         _canvasWindow.scrollEnabled = YES; //enable scrolling
@@ -322,7 +355,7 @@ static NSString *borderType = @"borderType";
         _snapToGridEnabled = NO; //toggle.
     }
     else {
-        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[UIColor greenColor]];
+        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[UIColor blackColor]];
         [_canvas addSubview:_grid]; //Show.
         [_canvas sendSubviewToBack:_grid]; //Don't block notes.
         _snapToGridEnabled = YES; //Toggle.

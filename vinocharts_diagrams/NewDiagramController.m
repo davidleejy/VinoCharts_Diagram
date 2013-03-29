@@ -23,10 +23,6 @@
     _heightOutput.text = [NSString stringWithFormat:@"%.2f",_height];
     _widthOutput.text = [NSString stringWithFormat:@"%.2f",_width];
     
-//todo
-    _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, 400, 400) Step:10 LineColor:[UIColor redColor]  ];
-    [self.view addSubview:_grid];
-    [_grid setNeedsDisplay];
 }
 
 

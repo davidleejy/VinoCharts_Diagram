@@ -43,8 +43,18 @@
     
     //Begin drawing grid lines
     
-    CGContextSetStrokeColor(contextRef, CGColorGetComponents(_lineColor.CGColor)); //Set color of grid lines.
-    CGContextSetLineWidth(contextRef, 0.25); // Set spacing in between grid lines.
+    //Set color of grid lines. Black and white colors have only 2 CGColor components.
+    if ([_lineColor isEqual:[UIColor blackColor]]) {
+        [[UIColor blackColor]setStroke];
+    }
+    else if ([_lineColor isEqual:[UIColor whiteColor]]) {
+        [[UIColor whiteColor]setStroke];
+    }
+    else {
+    CGContextSetStrokeColor(contextRef, CGColorGetComponents(_lineColor.CGColor)); //Colors that have 4 CGColor components.
+    }
+    
+    CGContextSetLineWidth(contextRef, 0.5); // Set thickness of stroke of grid lines.
     
     //draw vertical lines.
     for (int i = 0; i < self.bounds.size.width; i+=_step) {
