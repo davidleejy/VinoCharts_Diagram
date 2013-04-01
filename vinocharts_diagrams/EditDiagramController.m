@@ -8,6 +8,8 @@
 
 #define DEBUG 1
 
+#import <math.h>
+
 #import "EditDiagramController.h"
 
 #import "Note.h"
@@ -16,6 +18,7 @@
 
 #import "GridView.h"
 #import "AlignmentLineView.h"
+#import "FramingLinesView.h"
 #import "MinimapView.h"
 
 #import "Constants.h"
@@ -30,6 +33,8 @@ static NSString *borderType = @"borderType";
 
 
 @implementation EditDiagramController
+
+@synthesize minimapView = _minimapView;
 
 - (void)viewDidLoad
 {
@@ -123,6 +128,8 @@ static NSString *borderType = @"borderType";
 //    [ViewHelper embedMark:CGPointMake(60, 60) WithColor:[ViewHelper invColorOf:[UIColor blueColor]] DurationSecs:0 In:_canvas];
 //    AlignmentLineView *a = [[AlignmentLineView alloc]initToDemarcateFrame:CGRectMake(15, 15, 50, 50) In:_canvas.bounds LineColor:[UIColor purpleColor] Thickness:1];
 //    [a addTo:_canvas];
+//    _flv1 = [[FramingLinesView alloc]initToDemarcateFrame:CGRectMake(10, 10, 100, 100) LineColor:[UIColor purpleColor] Thickness:8];
+//    [_flv1 addTo:_canvas];
     
 }
 
@@ -197,10 +204,14 @@ static NSString *borderType = @"borderType";
     }
     
     // Redo minimap
-    [_mV1 removeFromSuperview];
-    _mV1 = [[MinimapView alloc]initWithMinimapDisplayFrame:CGRectMake(800, 480, 200, 200) MapOf:_canvas PopulateWith:_notesArray];
-    [_mV1 setAlpha:0.8]; // make transparent.
-    [self.view addSubview:_mV1];
+    if (_minimapEnabled) {
+        [_minimapView removeFromSuperview];
+        _minimapView = [[MinimapView alloc]initWithMinimapDisplayFrame:CGRectMake(800, 480, 200, 200) MapOf:_canvas PopulateWith:_notesArray];
+        [_minimapView setAlpha:0.8]; // make transparent.
+        [self.view addSubview:_minimapView];
+    }
+    //Set thickness of screen tracker on minimap regardless.
+//    [_mV1.screenTracker setThickness:(_canvas.bounds.size.height*_canvas.bounds.size.width)/10000];
     
     
     [[_currentPopoverSegue popoverController] dismissPopoverAnimated: YES]; // dismiss the popover.
@@ -221,6 +232,9 @@ static NSString *borderType = @"borderType";
         [_space remove:((Note*)((UITextView*)recognizer.view).delegate)]; //Remove note from space
         ((UITextView*)recognizer.view).alpha = 0.7; //Dim note's appearance.
         [_canvas bringSubviewToFront:((UITextView*)recognizer.view)]; //Give illusion of lifting note up from canvas.
+        _singlySelectedPannedNotesCount++; // increment count. Useful in regulating disabling/re-enabling of grid snapping button.
+        
+        if ([_gridSnappingButton isEnabled]) [_gridSnappingButton setEnabled:NO]; //disable grid snapping button. Safety reasons.
         
         // Prepare alignment lines.
         ((Note*)((UITextView*)recognizer.view).delegate).alignmentLines = [[AlignmentLineView alloc]initToDemarcateFrame:((UITextView*)recognizer.view).frame In:_canvas.bounds LineColor:[ViewHelper invColorOf:_canvas.backgroundColor] Thickness:2];
@@ -258,8 +272,6 @@ static NSString *borderType = @"borderType";
     
     if (_snapToGridEnabled) {
         
-        [_gridSnappingButton setEnabled:NO]; //disable grid snapping button. Safety reasons.
-        
         // The purpose of this block is to mark out where the note would snap to upon releasing your finger.
         double step = _grid.step; //Find out the stepping involved.
         // Perform rounding algo. This algo finds out where the note's frame's origin would end after releasing your finger.
@@ -290,6 +302,12 @@ static NSString *borderType = @"borderType";
     
 	if(recognizer.state == UIGestureRecognizerStateEnded) {
         
+        _singlySelectedPannedNotesCount--; // Decrement count. Useful in regulating disabling/re-enabling of grid snapping button.
+        
+        if (_singlySelectedPannedNotesCount == 0) { //Implies no notes being singly selected and panned.
+            [_gridSnappingButton setEnabled:YES]; //re-enable grid snapping button.
+        }
+        
         if (_snapToGridEnabled) {
             double step = _grid.step; //Find out the stepping involved.
             //Perform snap rounding algo. This algo focuses on snapping the origin of the note.
@@ -306,7 +324,6 @@ static NSString *borderType = @"borderType";
             ((Note*)((UITextView*)recognizer.view).delegate).body.pos = cpv(snappedXcenter,
                                                                             snappedYcenter);
             [((Note*)((UITextView*)recognizer.view).delegate) hideFrameOriginIndicator]; //hide indicator
-            [_gridSnappingButton setEnabled:YES]; //re-enable grid snapping button.
             //Remove foreshadow.
             [((Note*)((UITextView*)recognizer.view).delegate).foreShadow removeFromSuperview];
         }
@@ -421,13 +438,13 @@ static NSString *borderType = @"borderType";
 - (IBAction)minimapButton:(id)sender {
     
     if (_minimapEnabled) { 
-        [_mV1 removeFromSuperview];
+        [_minimapView removeFromSuperview];
         _minimapEnabled = NO; //toggle.
     }
     else {
-        _mV1 = [[MinimapView alloc]initWithMinimapDisplayFrame:CGRectMake(800, 480, 200, 200) MapOf:_canvas PopulateWith:_notesArray];
-        [_mV1 setAlpha:0.8]; // make transparent.
-        [self.view addSubview:_mV1];
+        _minimapView = [[MinimapView alloc]initWithMinimapDisplayFrame:CGRectMake(800, 480, 200, 200) MapOf:_canvas PopulateWith:_notesArray];
+        [_minimapView setAlpha:0.8]; // make transparent.
+        [self.view addSubview:_minimapView];
         _minimapEnabled = YES; //toggle.
     }
     
@@ -526,8 +543,58 @@ static NSString *borderType = @"borderType";
     }
     
     if (_minimapEnabled) {
-        [_mV1 removeAllNotes];
-        [_mV1 remakeWith:_notesArray];
+        [_minimapView removeAllNotes];
+        [_minimapView remakeWith:_notesArray];
+        
+        
+        /* Begin algorithm to compute CGRect of visible area in _canvas. (x,y,w,h) of this CGRect is w.r.t _canvas. */
+        
+        CGRect visibleRect;
+        visibleRect.origin = _canvasWindow.contentOffset;
+        visibleRect.size = _canvasWindow.contentSize;
+        visibleRect.origin.x /= _canvasWindow.zoomScale;
+        visibleRect.origin.y /= _canvasWindow.zoomScale;
+        
+        if (_canvasWindow.contentSize.width > _canvasWindow.bounds.size.width) {
+            // Horizontally, there is content off-screen.
+            // The algo in this block finds the top right visible point of _canvas. And uses this point to find the width of the visible area of the canvas (w.r.t _canvas).
+            //
+            //
+            // Convert top right visible point of _canvas into equivalent point in self.view (layer "closest" to user)
+            CGPoint inSelfViewTL = [self.view convertPoint:visibleRect.origin fromView:_canvas];
+            // In self.view, find the point equivalent to top right visible point of _canvas.
+            CGPoint inSelfViewTR = CGPointMake(inSelfViewTL.x+_canvasWindow.frame.size.width, inSelfViewTL.y);
+            // Convert this point to an equivalent point in _canvas.
+            CGPoint inCanvasTR = [_canvas convertPoint:inSelfViewTR fromView:self.view];
+            // Compute visible wdith in canvas w.r.t _canvas.
+            visibleRect.size.width = inCanvasTR.x - visibleRect.origin.x;
+        }
+        else {
+            visibleRect.size.width /= _canvasWindow.zoomScale;
+        }
+        
+        if (_canvasWindow.contentSize.height > _canvasWindow.bounds.size.height) {
+            // Vertically, there is content off-screen.
+            // The algo in this block finds the bottom left visible point of _canvas. And uses this point to find the height of the visible area of the canvas (w.r.t _canvas).
+            //
+            //
+            // Convert top right visible point of _canvas into equivalent point in self.view (layer "closest" to user)
+            CGPoint inSelfViewTL = [self.view convertPoint:visibleRect.origin fromView:_canvas];
+            // In self.view, find the point equivalent to bottom left visible point of _canvas.
+            CGPoint inSelfViewBL = CGPointMake(inSelfViewTL.x, inSelfViewTL.y+_canvasWindow.frame.size.height);
+            // Convert this point to an equivalent point in _canvas.
+            CGPoint inCanvasBL = [_canvas convertPoint:inSelfViewBL fromView:self.view];
+            // Compute visible height in canvas w.r.t _canvas.
+            visibleRect.size.height = inCanvasBL.y - visibleRect.origin.y;
+        }
+        else {
+            visibleRect.size.height /= _canvasWindow.zoomScale;
+        }
+        
+        /* algo ends*/
+        
+        [_minimapView setScreenTrackerFrame:visibleRect]; //set the rect outline in minimap that depicts the area of _canvas that is visible to user.
+        
     }
 }
 

@@ -13,6 +13,7 @@
 #import "CanvasSettingController.h"
 #import "GridView.h"
 @class MinimapView;
+@class FramingLinesView;
 
 @interface EditDiagramController : UIViewController <UIScrollViewDelegate, UIPopoverControllerDelegate, CanvasSettingControllerDelegate>
 
@@ -31,6 +32,7 @@
 /*States*/
 @property (readwrite) BOOL editingANote;
 @property (readwrite) Note *noteBeingEdited;
+@property (readwrite) int singlySelectedPannedNotesCount; // number of notes being panned via single touch pan gesture.
 @property (readwrite) BOOL snapToGridEnabled;
 @property (readwrite) BOOL minimapEnabled;
 
@@ -65,10 +67,12 @@
 
 // Minimap
 //TODO
-@property (readwrite) UIView *minimap;
-@property (readwrite) UIView *minimap2;
-@property (readwrite) UIView *minimapDisplay;
-@property (readwrite) MinimapView *mV1;
+@property (readwrite) UIView *minimap; //TODO del
+@property (readwrite) UIView *minimap2; //TODO del
+@property (readwrite) UIView *minimapDisplay; //TODO del
+@property (readwrite) FramingLinesView *flv1; //TODO del
+@property (readwrite) MinimapView *minimapView;
+
 
 /*Gesture Recognizer Methods*/
 

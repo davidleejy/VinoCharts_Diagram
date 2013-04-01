@@ -27,6 +27,18 @@
   DurationSecs:(double)t
             In:(UIView*)view1;
 // MODIFIES: view1
+// EFFECTS: embeds a small rectangle for a specified amount of time.
+//          returns a UIView* that points to the rectangle embedded in view1.
+// NOTES: pass in t <= 0 to permanently embed the rectangle.
+//          You may disregard the return value especially
+//          if you've set the duration to a non-zero value.
+
+
++(UIView*)embedRect:(CGRect)frame
+          WithColor:(UIColor*)color
+       DurationSecs:(double)t
+                 In:(UIView*)view1;
+// MODIFIES: view1
 // EFFECTS: embeds a rectangle for a specified amount of time.
 //          returns a UIView* that points to the rectangle embedded in view1.
 // NOTES: pass in t <= 0 to permanently embed the rectangle.

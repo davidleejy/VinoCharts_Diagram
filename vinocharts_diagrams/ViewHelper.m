@@ -54,6 +54,25 @@
 }
 
 
++(UIView*)embedRect:(CGRect)frame
+          WithColor:(UIColor*)color
+       DurationSecs:(double)t
+                 In:(UIView*)view1
+{
+    UIView *rect = [[UIView alloc]initWithFrame:frame];
+    [rect setBackgroundColor:color];
+    [view1 addSubview:rect];
+    
+    if (t <= 0.0) {
+        return rect;
+    }
+    else // mark will remove itself from view1 after t seconds.
+        [rect performSelector:@selector(removeFromSuperview) withObject:nil afterDelay:t];
+    
+    return rect;
+}
+
+
 +(UIColor*)invColorOf:(UIColor*)aColor{
     
     // White and black color are special cases.

@@ -21,11 +21,12 @@
 
 //4 lines demarcate the demarcatedFrame.
 // Lines are:
-//          Top Line
-//         ______
-//    Left|  Obj |Right
-//    Line|______|Line
-//          Btm Line
+//           Top Line
+//         _|______|_
+//    Left  |  Obj |    Right
+//    Line _|______|_   Line
+//          |      |
+//           Btm Line
 //
 // Note that these lines stretch all the way out to the edge of the superview of the Obj.
 

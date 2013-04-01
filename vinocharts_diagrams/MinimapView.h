@@ -8,14 +8,18 @@
 
 #import <UIKit/UIKit.h>
 @class Note;
+@class FramingLinesView;
 
 @interface MinimapView : UIView
 
-@property (readwrite) UIView *map;
+@property (readwrite) UIView *terrain;
+@property (readonly) FramingLinesView *screenTracker;
 @property (readwrite) UIView *minimapDisplay;
 @property (readwrite) NSMutableArray *notesArray;
 
 - (id)initWithMinimapDisplayFrame:(CGRect)frame MapOf:(UIView*)canvas PopulateWith:(NSMutableArray*)notesArray;
+
+- (void)setScreenTrackerFrame:(CGRect)screenFrame;
 
 - (void)removeAllNotes;
 
