@@ -8,9 +8,10 @@
 
 #define DEBUG 1
 
-#import <math.h>
+#import <math.h> // Good ol' math.h
+#import <dispatch/dispatch.h> // Grand Central Dispatch
 
-#import "EditDiagramController.h"
+#import "EditDiagramController.h" // That's my header!
 
 #import "Note.h"
 
@@ -42,6 +43,12 @@ static NSString *borderType = @"borderType";
     
     if(DEBUG) NSLog(@"Requested w & h are %.2f , %.2f", _requestedCanvasWidth, _requestedCanvasHeight);
     
+    // Set up keyboard management.
+    [self setupKeyboardMgmt];
+    
+    // Set up Dispatch Queues.
+    _gridRenderingQueue = dispatch_queue_create("EditDiagramController.gridRenderingQueue", NULL);
+    
     // Initialise _notesArray
     _notesArray = [[NSMutableArray alloc]init];
     
@@ -66,8 +73,7 @@ static NSString *borderType = @"borderType";
     [_canvasWindow setMaximumZoomScale:2.0];
     [_canvasWindow setMinimumZoomScale:0.1];
     [_canvasWindow setClipsToBounds:YES];
-    //Memorise original canvasWindow height.
-    _canvasWindowOrigHeight = _canvasWindow.frame.size.height;
+    
     
     // Initialise _canvas
 //    _canvas = [[UIView alloc]initWithFrame:CGRectMake(EASEL_BORDER_CANVAS_BORDER_OFFSET,
@@ -97,6 +103,9 @@ static NSString *borderType = @"borderType";
     [_canvasWindow setZoomScale:1 animated:YES];
     // _canvasWindow.contentSize is _canvas.bounds now.
     
+    //Memorise original canvasWindow height.
+    _canvasWindowOrigHeight = 704;
+    
     // Initialise states
     _editingANote = NO;
     _noteBeingEdited = nil;
@@ -117,6 +126,8 @@ static NSString *borderType = @"borderType";
     // Attach gesture recognizers
     UITapGestureRecognizer *singleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapResponse:)];
     [_canvasWindow addGestureRecognizer:singleTapRecog];
+    
+    
     
     //TODO remove. testing.
 //    UIView* x = [[UIView alloc]initWithFrame:CGRectMake(10, 10, 500,500)];
@@ -152,7 +163,7 @@ static NSString *borderType = @"borderType";
 }
 
 
-// =============== Canvas Settings ==================
+#pragma mark - Canvas Settings
 
 // CanvasSettingControllerDelegate callback function
 - (void)CanvasSettingControllerDelegateOkButton:(double)newWidth :(double)newHeight{
@@ -336,17 +347,13 @@ static NSString *borderType = @"borderType";
 }
 
 -(void)noteDoubleTapResponse:(UITapGestureRecognizer*)recognizer {
+    //Make textview of targeted note editable.
     [((UITextView*)(recognizer.view.superview)) setEditable:YES];
-    //Summon keyboard.
-    [((UITextView*)(recognizer.view.superview)) becomeFirstResponder];
-    //Adjusting states below. These states are kept for programmatically dismissing the keyboard.
+    //Adjusting states below.
     _editingANote = YES;
     _noteBeingEdited = ((Note*)((UITextView*)(recognizer.view.superview)).delegate);
-    
-    //Move _canvasWindow to show the note being edited. _canvasWindow is resized.
-    _canvasWindow.frame=CGRectMake(_canvasWindow.frame.origin.x, _canvasWindow.frame.origin.y, _canvasWindow.frame.size.width, 400);
-    CGRect rc = [_noteBeingEdited.textView convertRect:CGRectMake(0, 0, _noteBeingEdited.textView.frame.size.width, _noteBeingEdited.textView.frame.size.height) toView:_canvasWindow];
-    [_canvasWindow scrollRectToVisible:rc animated:YES];
+    //Summon keyboard.
+    [((UITextView*)(recognizer.view.superview)) becomeFirstResponder];
     
     //Show tool bar related to editing notes.
     [self.view addSubview:_editNoteToolBar];
@@ -355,20 +362,11 @@ static NSString *borderType = @"borderType";
 - (void)singleTapResponse:(UITapGestureRecognizer *)recognizer {
     if (_editingANote)
     {
-        [self.view endEditing:YES];
-        _editingANote = NO;
-        [_noteBeingEdited.textView setEditable:NO];
-        _noteBeingEdited = nil;
-        
-        //Reinstate _canvasWindow to original size
-        _canvasWindow.frame=CGRectMake(_canvasWindow.frame.origin.x, _canvasWindow.frame.origin.y, _canvasWindow.frame.size.width, _canvasWindowOrigHeight);
-        
-        //Hide tool bar related to editing notes
-        [_editNoteToolBar removeFromSuperview];
+        [self.view endEditing:YES]; // Dismiss keyboard.
     }
 }
 
-// =============== Main screen toolbar buttons ===============
+#pragma mark - Main Toolbar & its BarButtons
 
 - (IBAction)addNewNoteButton:(id)sender {
     
@@ -392,6 +390,10 @@ static NSString *borderType = @"borderType";
     newN.body.pos = centerOfNewNote; // Give coordinates to body ONLY.
     newN.textView.backgroundColor = [UIColor brownColor]; //Give color
     
+    [_notesArray addObject:(Note*)newN]; // Stored in property
+    [_canvas addSubview:newN.textView]; // Visible to user
+    [_space add:newN]; // Visible to physics engine
+    
     /*Attach gesture recognizers*/
     
     UIPanGestureRecognizer *panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(notePanResponse:)];
@@ -402,9 +404,7 @@ static NSString *borderType = @"borderType";
     [newN.editView addGestureRecognizer:doubleTapRecog];
     [newN.editView setUserInteractionEnabled:YES];
     
-    [_notesArray addObject:(Note*)newN]; // Stored in property
-    [_canvas addSubview:newN.textView]; // Visible to user
-    [_space add:newN]; // Visible to physics engine
+   
 }
 
 - (IBAction)backButton:(id)sender {
@@ -424,13 +424,26 @@ static NSString *borderType = @"borderType";
 - (IBAction)gridSnappingButton:(id)sender {
     // Toggles snapping to grid feature.
     if (_snapToGridEnabled) {
+        // Grid snapping: ON -> OFF
         [_grid removeFromSuperview]; //hide.
         _snapToGridEnabled = NO; //toggle.
     }
     else {
-        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[ViewHelper invColorOf:[_canvas backgroundColor]]];
-        [_canvas addSubview:_grid]; //Show.
-        [_canvas sendSubviewToBack:_grid]; //Don't block notes.
+        // Grid snapping: OFF -> ON
+        // Use GCD to render lines that depict grid.
+        dispatch_async(_gridRenderingQueue, ^(void) {
+            _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[ViewHelper invColorOf:[_canvas backgroundColor]]];
+            [_canvas addSubview:_grid]; //Show.
+            [_canvas sendSubviewToBack:_grid]; //Don't block notes.
+        });
+        
+        //Inform user that some time is needed for gridlines to show.
+        [ViewHelper embedText:@"Grid lines are loading.  You may begin snapping notes even without seeing grid lines. Start snapping!"
+                    WithFrame:self.view.frame
+                    TextColor:[ViewHelper invColorOf:_canvas.backgroundColor]
+                 DurationSecs:4
+                           In:self.view];
+        
         _snapToGridEnabled = YES; //Toggle.
     }
 }
@@ -452,6 +465,7 @@ static NSString *borderType = @"borderType";
 
 
 // =============== Edit Note Tool Bar ===============
+
 -(void)createEditNoteToolBar{
     _editNoteToolBar = [[UIToolbar alloc]init];
     _editNoteToolBar.frame = CGRectMake(0, 0, 1024, 44);
@@ -513,8 +527,8 @@ static NSString *borderType = @"borderType";
     [_editNoteToolBar removeFromSuperview];
 }
 
-// =============== Chipmunk Physics Engine Stuff ===============
 
+#pragma mark - Chipmunk Physics Engine
 
 // When the view appears on the screen, start the animation timer and tilt callbacks.
 - (void)viewDidAppear:(BOOL)animated {
@@ -615,14 +629,10 @@ static NSString *borderType = @"borderType";
 }
 
 
-// =============== Orientation of this view controller ===============
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
-{
-    return YES;
-}
 
-// =============== UIScrollView delegate method ===============
+#pragma mark - UIScrollView delegate methods
+
 -(UIView*)viewForZoomingInScrollView:(UIScrollView *)scrollView{
     return _canvas;
 }
@@ -648,8 +658,56 @@ static NSString *borderType = @"borderType";
     ((UIView*)[scrollView.subviews objectAtIndex:0]).frame = [ViewHelper centeredFrameForScrollViewWithNoContentInset:scrollView AndWithContentView: ((UIView*)[scrollView.subviews objectAtIndex:0])];
 }
 
+#pragma mark - Keyboard Management
 
-// =============== DON'T CARE BELOW THIS LINE ===============
+- (void)setupKeyboardMgmt {
+    // Set up to link to do adjustments when showing and hiding the keyboard.
+    // An e.g. of an adjustment is resizing the _canvasWindow to occupy the space above the keyboard when the keyboard is shown.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification
+                                               object:nil];
+}
+
+-(void)keyboardWillShow:(NSNotification*)notification{
+    
+    //Move _canvasWindow to show the note being edited. _canvasWindow is resized.
+    _canvasWindow.frame=CGRectMake(_canvasWindow.frame.origin.x, _canvasWindow.frame.origin.y, _canvasWindow.frame.size.width, 400);
+    CGRect rc = [_noteBeingEdited.textView convertRect:CGRectMake(0, 0, _noteBeingEdited.textView.frame.size.width, _noteBeingEdited.textView.frame.size.height) toView:_canvasWindow];
+    [_canvasWindow scrollRectToVisible:rc animated:YES];
+    
+}
+
+-(void)keyboardWillHide:(NSNotification*)notification{
+    // Adjust the state of this Controller.
+    _editingANote = NO;
+    // Lock the note that was edited.
+    [_noteBeingEdited.textView setEditable:NO];
+    // Remove pointer to note that was being edited.
+    _noteBeingEdited = nil;
+    
+    //Reinstate _canvasWindow to original size.
+    _canvasWindow.frame=CGRectMake(_canvasWindow.frame.origin.x, _canvasWindow.frame.origin.y, _canvasWindow.frame.size.width, _canvasWindowOrigHeight);
+    
+    //Hide tool bar related to editing notes.
+    [_editNoteToolBar removeFromSuperview];
+}
+
+
+#pragma mark - Orientation
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
+{
+    return YES;
+}
+
+
+#pragma mark - Don't Care
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

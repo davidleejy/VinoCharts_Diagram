@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 #import <quartzcore/CADisplayLink.h>
+#import <dispatch/dispatch.h>
 #import "Note.h"
 #import "CanvasSettingController.h"
 #import "GridView.h"
@@ -64,6 +65,7 @@
 
 // Grid
 @property (readwrite) GridView *grid;
+@property (readwrite) dispatch_queue_t gridRenderingQueue;
 
 // Minimap
 //TODO
