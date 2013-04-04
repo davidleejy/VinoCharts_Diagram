@@ -84,6 +84,9 @@
 -(void)noteDoubleTapResponse:(UITapGestureRecognizer*)recognizer;
 // EFFECTS: Executes what a note is supposed to do when the button at the bottom left of the note is double tapped.
 
+-(void)massSelectNotes:(UITapGestureRecognizer*)recognizer; //TODO
+// EFFECTS: Selects >1 notes.
+
 - (void)singleTapResponse:(UITapGestureRecognizer *)recognizer;
 // EFFECTS: Executes what a single tap is supposed to do.
 

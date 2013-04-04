@@ -106,6 +106,8 @@ static NSString *borderType = @"borderType";
     //Memorise original canvasWindow height.
     _canvasWindowOrigHeight = 704;
     
+    
+    
     // Initialise states
     _editingANote = NO;
     _noteBeingEdited = nil;
@@ -115,19 +117,22 @@ static NSString *borderType = @"borderType";
     // Initialise _space (Chipmunk physics space)
     _space = [[ChipmunkSpace alloc] init];
     [_space addBounds:_canvas.bounds
-            thickness:100000.0f elasticity:0.2f friction:0.8 layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
+            thickness:1000000.0f elasticity:0.2f friction:0.8 layers:CP_ALL_LAYERS group:CP_NO_GROUP collisionType:borderType];
     [_space setGravity:cpv(0, 0)];
     [self createCollisionHandlers];
 
     
-    // Initialise gridView
-        //gridView is initialised by pressing the snap to grid button.
+    // Initialise gridView silently in background thread.
+    [self createGridLinesWithStep:30 Color:[ViewHelper invColorOf:[_canvas backgroundColor]] In:_gridRenderingQueue];
     
     // Attach gesture recognizers
     UITapGestureRecognizer *singleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapResponse:)];
     [_canvasWindow addGestureRecognizer:singleTapRecog];
     
-    
+    //TODO
+    UITapGestureRecognizer *multiTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(massSelectNotes:)];
+    [multiTapRecog setNumberOfTapsRequired:5];
+    [_canvas addGestureRecognizer:multiTapRecog];
     
     //TODO remove. testing.
 //    UIView* x = [[UIView alloc]initWithFrame:CGRectMake(10, 10, 500,500)];
@@ -168,6 +173,24 @@ static NSString *borderType = @"borderType";
 // CanvasSettingControllerDelegate callback function
 - (void)CanvasSettingControllerDelegateOkButton:(double)newWidth :(double)newHeight{
     
+    // Update actual canvas height and width.
+    _actualCanvasHeight = newHeight;
+    _actualCanvasWidth = newWidth;
+    
+    
+    if (_snapToGridEnabled) {
+        [_grid removeFromSuperview]; //hide.
+        [self createGridLinesWithStep:30 Color:[ViewHelper invColorOf:[_canvas backgroundColor]] In:nil]; //on main thread.
+        [_canvas addSubview:_grid]; //Show.
+        [_canvas sendSubviewToBack:_grid]; //Don't block notes.
+    }
+    else { // snap to grid is disabled.
+        // Redraw gridlines silently in background thread.
+        [self createGridLinesWithStep:30
+                            Color:[ViewHelper invColorOf:[_canvas backgroundColor]]
+                               In:_gridRenderingQueue];
+    }
+    
     // Display alert.
     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"Canvas settings successfully changed.\nWidth:%.2f Height:%.2f",newWidth,newHeight]
                                                    message:nil
@@ -176,9 +199,7 @@ static NSString *borderType = @"borderType";
                                          otherButtonTitles:nil];
     [alert show];
     
-    // Update actual canvas height and width.
-    _actualCanvasHeight = newHeight;
-    _actualCanvasWidth = newWidth;
+    
     
     // Modify _canvas.
     [_canvas setFrame:CGRectMake(_canvas.frame.origin.x,
@@ -208,11 +229,6 @@ static NSString *borderType = @"borderType";
         [_space add:[ _notesArray objectAtIndex:i]];
     }
     
-    // Redraw grid
-    if (_snapToGridEnabled) {
-        [self gridSnappingButton:nil];
-        [self gridSnappingButton:nil];
-    }
     
     // Redo minimap
     if (_minimapEnabled) {
@@ -248,9 +264,9 @@ static NSString *borderType = @"borderType";
         if ([_gridSnappingButton isEnabled]) [_gridSnappingButton setEnabled:NO]; //disable grid snapping button. Safety reasons.
         
         // Prepare alignment lines.
-        ((Note*)((UITextView*)recognizer.view).delegate).alignmentLines = [[AlignmentLineView alloc]initToDemarcateFrame:((UITextView*)recognizer.view).frame In:_canvas.bounds LineColor:[ViewHelper invColorOf:_canvas.backgroundColor] Thickness:2];
+        ((Note*)((UITextView*)recognizer.view).delegate).alignmentLines = [[AlignmentLineView alloc]initToDemarcateFrame:((UITextView*)recognizer.view).frame In:_canvas.bounds LineColor:[ViewHelper invColorOf:_canvas.backgroundColor] Thickness:1.0/_canvasWindow.zoomScale];
 
-//        // Show the alignment lines.
+        // Show the alignment lines.
         [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines addToBottommostOf:_canvas];
 //        [_canvas addSubview:((Note*)((UITextView*)recognizer.view).delegate).alignmentLines];
         
@@ -320,6 +336,8 @@ static NSString *borderType = @"borderType";
         }
         
         if (_snapToGridEnabled) {
+            //Prepare to blast the other notes around this note away.
+            ((Note*)((UITextView*)recognizer.view).delegate).body.mass = 99999;
             double step = _grid.step; //Find out the stepping involved.
             //Perform snap rounding algo. This algo focuses on snapping the origin of the note.
             //The origin of the note refers to the top left hand corner of the note.
@@ -337,12 +355,15 @@ static NSString *borderType = @"borderType";
             [((Note*)((UITextView*)recognizer.view).delegate) hideFrameOriginIndicator]; //hide indicator
             //Remove foreshadow.
             [((Note*)((UITextView*)recognizer.view).delegate).foreShadow removeFromSuperview];
+            //Retract blasting ability.
+            ((Note*)((UITextView*)recognizer.view).delegate).body.mass = 50;
         }
         
         [((Note*)((UITextView*)recognizer.view).delegate).alignmentLines removeLines]; // Hide alignment lines.
         _canvasWindow.scrollEnabled = YES; //enable scrolling
         [_space add:((Note*)((UITextView*)recognizer.view).delegate)]; //Re-add note into space
         ((UITextView*)recognizer.view).alpha = 1; //Un-dim note's appearance.
+        
     }
 }
 
@@ -357,6 +378,16 @@ static NSString *borderType = @"borderType";
     
     //Show tool bar related to editing notes.
     [self.view addSubview:_editNoteToolBar];
+}
+
+-(void)massSelectNotes:(UITapGestureRecognizer*)recognizer{
+    NSLog(@"multi tap detected!!!");
+    uint touchCount = recognizer.numberOfTouches; //get number of fingers
+    for (int i=0; i<touchCount; i++) {
+        CGPoint fingerCoord = [recognizer locationOfTouch:i inView:_canvas];
+        [ViewHelper embedMark:CGPointMake(fingerCoord.x+50, fingerCoord.y+50) WithColor:[UIColor redColor] DurationSecs:1.0f In:_canvas];
+    }
+    [ViewHelper embedText:@"detected!!!!!!" WithFrame:self.view.frame TextColor:[UIColor redColor] DurationSecs:5.0f In:self.view];
 }
 
 - (void)singleTapResponse:(UITapGestureRecognizer *)recognizer {
@@ -430,20 +461,9 @@ static NSString *borderType = @"borderType";
     }
     else {
         // Grid snapping: OFF -> ON
-        // Use GCD to render lines that depict grid.
-        dispatch_async(_gridRenderingQueue, ^(void) {
-            _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight) Step:30 LineColor:[ViewHelper invColorOf:[_canvas backgroundColor]]];
-            [_canvas addSubview:_grid]; //Show.
-            [_canvas sendSubviewToBack:_grid]; //Don't block notes.
-        });
-        
-        //Inform user that some time is needed for gridlines to show.
-        [ViewHelper embedText:@"Grid lines are loading.  You may begin snapping notes even without seeing grid lines. Start snapping!"
-                    WithFrame:self.view.frame
-                    TextColor:[ViewHelper invColorOf:_canvas.backgroundColor]
-                 DurationSecs:4
-                           In:self.view];
-        
+        [_canvas addSubview:_grid]; //Show.
+        [_canvas sendSubviewToBack:_grid]; //Don't block notes.
+        [self giveAdviseAboutSnappingWithoutGridLines];//Advise user.
         _snapToGridEnabled = YES; //Toggle.
     }
 }
@@ -629,6 +649,32 @@ static NSString *borderType = @"borderType";
 }
 
 
+#pragma mark - Grid
+
+-(void)createGridLinesWithStep:(double)step Color:(UIColor*)color In:(dispatch_queue_t)queue{
+    
+    if (queue != nil) {
+        dispatch_async(queue, ^(void){
+            _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight)
+                                              Step:step
+                                         LineColor:color];
+        });
+    }
+    else {
+        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight)
+                                          Step:step
+                                     LineColor:color];
+    }
+}
+
+-(void)giveAdviseAboutSnappingWithoutGridLines{
+    //Inform user that some time is needed for gridlines to show.
+    [ViewHelper embedText:@"Some time may be needed for drawing grid lines.  You may begin snapping notes even without seeing grid lines. Happy snapping!"
+                WithFrame:self.view.frame
+                TextColor:[ViewHelper invColorOf:_canvas.backgroundColor]
+             DurationSecs:4
+                       In:self.view];
+}
 
 
 #pragma mark - UIScrollView delegate methods
