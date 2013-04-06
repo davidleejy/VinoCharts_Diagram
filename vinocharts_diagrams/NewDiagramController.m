@@ -18,7 +18,7 @@
 {
     [super viewDidLoad]; // Do any additional setup after loading the view.
     
-    _height = 3000; _width = 6000;
+    _height = 6000; _width = 9000;
     _heightOutput.text = [NSString stringWithFormat:@"%.2f",_height];
     _widthOutput.text = [NSString stringWithFormat:@"%.2f",_width];
     

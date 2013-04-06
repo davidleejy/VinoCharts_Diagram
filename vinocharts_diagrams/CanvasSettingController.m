@@ -12,6 +12,7 @@
 
 #import "Constants.h"
 
+
 @implementation CanvasSettingController
 
 
@@ -19,7 +20,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    
+    [_widthDisplay setKeyboardType:UIKeyboardTypeNumbersAndPunctuation];
+    [_heightDisplay setKeyboardType:UIKeyboardTypeNumbersAndPunctuation];
 }
 
 
@@ -65,6 +68,7 @@
 - (IBAction)cancelButton:(id)sender {
     [_delegate CanvasSettingControllerDelegateCancelButton];
 }
+
 
 - (void)viewDidUnload {
     [self setWidthDisplay:nil];

@@ -15,8 +15,7 @@
 
 - (id)initWithFrame:(CGRect)frame Step:(double)s LineColor:(UIColor*)lcolor;
 
-- (void)redrawWithLineColor:(UIColor *)lineColor;
+- (void)setColor:(UIColor *)lineColor;
 
-- (void)redrawWithStep:(double)myStep;
 
 @end

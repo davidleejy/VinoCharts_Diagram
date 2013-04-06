@@ -46,9 +46,6 @@ static NSString *borderType = @"borderType";
     // Set up keyboard management.
     [self setupKeyboardMgmt];
     
-    // Set up Dispatch Queues.
-    _gridRenderingQueue = dispatch_queue_create("EditDiagramController.gridRenderingQueue", NULL);
-    
     // Initialise _notesArray
     _notesArray = [[NSMutableArray alloc]init];
     
@@ -122,8 +119,8 @@ static NSString *borderType = @"borderType";
     [self createCollisionHandlers];
 
     
-    // Initialise gridView silently in background thread.
-    [self createGridLinesWithStep:30 Color:[ViewHelper invColorOf:[_canvas backgroundColor]] In:_gridRenderingQueue];
+    // Initialise gridView
+        //No need
     
     // Attach gesture recognizers
     UITapGestureRecognizer *singleTapRecog = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapResponse:)];
@@ -173,6 +170,8 @@ static NSString *borderType = @"borderType";
 // CanvasSettingControllerDelegate callback function
 - (void)CanvasSettingControllerDelegateOkButton:(double)newWidth :(double)newHeight{
     
+    //TODO can optimise grid drawing.
+    
     // Update actual canvas height and width.
     _actualCanvasHeight = newHeight;
     _actualCanvasWidth = newWidth;
@@ -180,16 +179,13 @@ static NSString *borderType = @"borderType";
     
     if (_snapToGridEnabled) {
         [_grid removeFromSuperview]; //hide.
-        [self createGridLinesWithStep:30 Color:[ViewHelper invColorOf:[_canvas backgroundColor]] In:nil]; //on main thread.
+        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight)
+                                          Step:30
+                                     LineColor:[ViewHelper invColorOf:[_canvas backgroundColor]]];
         [_canvas addSubview:_grid]; //Show.
         [_canvas sendSubviewToBack:_grid]; //Don't block notes.
     }
-    else { // snap to grid is disabled.
-        // Redraw gridlines silently in background thread.
-        [self createGridLinesWithStep:30
-                            Color:[ViewHelper invColorOf:[_canvas backgroundColor]]
-                               In:_gridRenderingQueue];
-    }
+    
     
     // Display alert.
     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:[NSString stringWithFormat:@"Canvas settings successfully changed.\nWidth:%.2f Height:%.2f",newWidth,newHeight]
@@ -461,9 +457,11 @@ static NSString *borderType = @"borderType";
     }
     else {
         // Grid snapping: OFF -> ON
+        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight)
+                                          Step:30
+                                     LineColor:[ViewHelper invColorOf:[_canvas backgroundColor]]];
         [_canvas addSubview:_grid]; //Show.
         [_canvas sendSubviewToBack:_grid]; //Don't block notes.
-        [self giveAdviseAboutSnappingWithoutGridLines];//Advise user.
         _snapToGridEnabled = YES; //Toggle.
     }
 }
@@ -651,30 +649,8 @@ static NSString *borderType = @"borderType";
 
 #pragma mark - Grid
 
--(void)createGridLinesWithStep:(double)step Color:(UIColor*)color In:(dispatch_queue_t)queue{
-    
-    if (queue != nil) {
-        dispatch_async(queue, ^(void){
-            _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight)
-                                              Step:step
-                                         LineColor:color];
-        });
-    }
-    else {
-        _grid = [[GridView alloc]initWithFrame:CGRectMake(0, 0, _actualCanvasWidth, _actualCanvasHeight)
-                                          Step:step
-                                     LineColor:color];
-    }
-}
 
--(void)giveAdviseAboutSnappingWithoutGridLines{
-    //Inform user that some time is needed for gridlines to show.
-    [ViewHelper embedText:@"Some time may be needed for drawing grid lines.  You may begin snapping notes even without seeing grid lines. Happy snapping!"
-                WithFrame:self.view.frame
-                TextColor:[ViewHelper invColorOf:_canvas.backgroundColor]
-             DurationSecs:4
-                       In:self.view];
-}
+//empty
 
 
 #pragma mark - UIScrollView delegate methods

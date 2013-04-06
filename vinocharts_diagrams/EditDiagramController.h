@@ -65,7 +65,6 @@
 
 // Grid
 @property (readwrite) GridView *grid;
-@property (readwrite) dispatch_queue_t gridRenderingQueue;
 
 // Minimap
 //TODO

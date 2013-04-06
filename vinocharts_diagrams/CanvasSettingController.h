@@ -22,6 +22,7 @@
 @property (weak, nonatomic, readwrite) IBOutlet UITextField *widthDisplay;
 @property (weak, nonatomic, readwrite) IBOutlet UITextField *heightDisplay;
 
+
 // Declare a property for my delegate
 @property (weak) id <CanvasSettingControllerDelegate> delegate;
 
